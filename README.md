@@ -37,3 +37,13 @@ const like = 'sample';
 TODO: Tell users more about the package: where to find more information, how to
 contribute to the package, how to file issues, what response they can expect
 from the package authors, and more.
+
+## TODO
+[ ] Type in combobox
+[ ] Items should only be visible when the focus is inside combobox or the items
+[ ] Filter the items according to prompt
+[ ] Move focus between items with arrow keys
+[ ] Select item with enter key / left mouse click
+[ ] Close the combobox with escape key / left mouse click outside
+[ ] Support for change of variables like items, current selected value and other things
+[ ] Easy themeing
