@@ -1,4 +1,5 @@
 import 'package:combobox_desktop/combobox_desktop.dart';
+import 'package:combobox_desktop/src/services/hook.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
@@ -12,12 +13,13 @@ class ComboboxFieldStore<T> = _ComboboxFieldStore<T>
 
 // The store-class
 abstract class _ComboboxFieldStore<T> with Store {
-  final ComboboxItemStringifier<T> _itemStringifier;
+  ComboboxItemStringifier<T> itemStringifier;
 
-  _ComboboxFieldStore(this._itemStringifier);
+  _ComboboxFieldStore(this.itemStringifier);
 
   @observable
-  TextEditingController controller = TextEditingController();
+  late TextEditingController controller = TextEditingController()
+    ..addListener(_onTextChangedListener);
 
   @observable
   late FocusNode focusNode = _createFocusNode();
@@ -63,7 +65,7 @@ abstract class _ComboboxFieldStore<T> with Store {
     if (item == null) {
       setValue('');
     } else {
-      setValue(_itemStringifier(item));
+      setValue(itemStringifier(item));
     }
   }
 
@@ -100,24 +102,17 @@ abstract class _ComboboxFieldStore<T> with Store {
     });
   }
 
-  VoidCallback? _onTextChangeHook;
-  set onTextChanged(void Function(String)? callback) {
-    if (_onTextChangeHook != null) {
-      controller.removeListener(_onTextChangeHook!);
+  Hook<void Function(String)> onTextChangeHook = Hook<void Function(String)>();
+  void _onTextChangedListener() {
+    // Ignore the call if requested earlier
+    if (_ignoreNotifyingListeners) {
+      _ignoreNotifyingListeners = false;
+      return;
     }
 
-    if (callback != null) {
-      _onTextChangeHook = () {
-        // Ignore the call if requested earlier
-        if (_ignoreNotifyingListeners) {
-          _ignoreNotifyingListeners = false;
-          return;
-        }
-
-        callback(controller.text);
-      };
-      controller.addListener(_onTextChangeHook!);
-    }
+    onTextChangeHook((callback) {
+      callback(controller.text);
+    });
   }
 
   /// Error text to be displayed below the field.
@@ -127,6 +122,20 @@ abstract class _ComboboxFieldStore<T> with Store {
   /// If not empty, message will also be displayed.
   @observable
   String? errorText;
+
+  /// A key which is attached to the field.
+  @observable
+  GlobalKey fieldKey = GlobalKey();
+
+  /// Returns the position and size of the field.
+  (Offset?, Size?) getPositionAndSize() {
+    final RenderBox? renderBox =
+        fieldKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      return (null, null);
+    }
+    return (renderBox.localToGlobal(Offset.zero), renderBox.size);
+  }
 
   void dispose() {
     controller.dispose();

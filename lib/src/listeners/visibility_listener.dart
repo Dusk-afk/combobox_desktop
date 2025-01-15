@@ -1,20 +1,27 @@
+import 'package:combobox_desktop/combobox_desktop.dart';
 import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
 import 'package:combobox_desktop/src/stores/menu_store.dart';
 import 'package:combobox_desktop/src/widgets/menu/combobox_menu.dart';
 import 'package:flutter/material.dart';
 
-/// Listener for the menu.
+/// Visibility listener for the menu.
 ///
 /// This will create an overlay menu when the field is focused.
 /// The menu will be closed when the field loses focus.
 ///
 /// It then updates the [MenuStore] accordingly.
-class MenuListener {
+class VisibilityListener<T> {
   final ComboboxFieldStore fieldStore;
-  final MenuStore menuStore;
+  final MenuStore<T> menuStore;
   final BuildContext context;
+  final ComboboxItemBuilder<T> itemBuilder;
 
-  MenuListener(this.context, this.fieldStore, this.menuStore) {
+  VisibilityListener(
+    this.context,
+    this.fieldStore,
+    this.menuStore,
+    this.itemBuilder,
+  ) {
     fieldStore.focusNode.addListener(_focusListener);
   }
 
@@ -33,7 +40,11 @@ class MenuListener {
   OverlayEntry _createEntry() {
     return OverlayEntry(
       builder: (context) {
-        return ComboboxMenu(store: menuStore);
+        return ComboboxMenu<T>(
+          store: menuStore,
+          itemBuilder: itemBuilder,
+          realContext: context,
+        );
       },
     );
   }

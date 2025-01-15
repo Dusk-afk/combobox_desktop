@@ -1,0 +1,1 @@
+enum ComboboxMenuPosition { below, right }

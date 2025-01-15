@@ -1,4 +1,7 @@
 import 'package:combobox_desktop/combobox_desktop.dart';
+import 'package:combobox_desktop/src/models/combobox_menu_position.dart';
+import 'package:combobox_desktop/src/models/menu_structure.dart';
+import 'package:combobox_desktop/src/services/hook.dart';
 import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
 import 'package:mobx/mobx.dart';
 
@@ -11,14 +14,16 @@ class MenuStore<T> = _MenuStore<T> with _$MenuStore<T>;
 // The store-class
 abstract class _MenuStore<T> with Store {
   final ComboboxFieldStore fieldStore;
-  final ComboboxItemStringifier<T> _itemStringifier;
-  final ComboboxItemChanged<T> onChanged;
+  ComboboxItemStringifier<T> itemStringifier;
+  ComboboxItemChanged<T> onChanged;
+  ComboboxMenuPosition menuPosition;
 
   _MenuStore(
     this.fieldStore,
     this.items,
-    this._itemStringifier,
+    this.itemStringifier,
     this.onChanged,
+    this.menuPosition,
   ) {
     filteredItems = items;
 
@@ -26,7 +31,7 @@ abstract class _MenuStore<T> with Store {
     fieldStore.onArrowDown = focusNextItem;
     fieldStore.onArrowUp = focusPreviousItem;
     fieldStore.onEnter = selectItem;
-    fieldStore.onTextChanged = filterItems;
+    fieldStore.onTextChangeHook.add(filterItems);
   }
 
   @observable
@@ -54,6 +59,12 @@ abstract class _MenuStore<T> with Store {
     this.items = items;
     resetFilter();
 
+    Future.microtask(() {
+      onStructureInputChange((callback) {
+        callback(filteredItems, focusedIndex);
+      });
+    });
+
     // If the current item is not in the new list, reset the item
     if (fieldStore.item != null &&
         !items.any((item) => item.value == fieldStore.item)) {
@@ -77,24 +88,33 @@ abstract class _MenuStore<T> with Store {
   @action
   void focusNextItem() {
     _focusedIndex = (focusedIndex + 1) % items.length;
+    onStructureInputChange((callback) {
+      callback(filteredItems, focusedIndex);
+    });
   }
 
   @action
   void focusPreviousItem() {
     _focusedIndex = (focusedIndex - 1) % items.length;
+    onStructureInputChange((callback) {
+      callback(filteredItems, focusedIndex);
+    });
   }
 
   @action
   void selectItem([int? index]) {
     _focusedIndex = index ?? focusedIndex;
     final item = filteredItems[_focusedIndex];
-    _ignoreFilter = _itemStringifier(item.value);
+    _ignoreFilter = itemStringifier(item.value);
     onChanged.call(item.value);
     fieldStore.focusNode.nextFocus();
   }
 
   @observable
   late List<ComboboxItem<T>> filteredItems;
+
+  Hook<void Function(List<ComboboxItem<T>> items, int focusedIndex)>
+      onStructureInputChange = Hook();
 
   /// Used for preventing unnecessary filtering if the filter value hasn't changed
   String? _lastFilter;
@@ -120,6 +140,10 @@ abstract class _MenuStore<T> with Store {
             item.value.toString().toLowerCase().contains(value.toLowerCase()))
         .toList();
 
+    onStructureInputChange((callback) {
+      callback(filteredItems, focusedIndex);
+    });
+
     if (fieldStore.item != null) {
       // While the user is typing, we do not want to select any item
       Future.microtask(() {
@@ -137,11 +161,14 @@ abstract class _MenuStore<T> with Store {
     filteredItems = items;
   }
 
+  @observable
+  MenuStructure? menuStructure;
+
   void dispose() {
     // Unhook the keyboard events
     fieldStore.onArrowDown = null;
     fieldStore.onArrowUp = null;
     fieldStore.onEnter = null;
-    fieldStore.onTextChanged = null;
+    fieldStore.onTextChangeHook.remove(filterItems);
   }
 }

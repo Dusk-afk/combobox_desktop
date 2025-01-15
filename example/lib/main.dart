@@ -73,6 +73,17 @@ class _ExampleState extends State<Example> {
     "Kia",
     "Nissan",
     "Volkswagen",
+    "BMW - 2",
+    "Audi - 2",
+    "Mercedes - 2",
+    "Toyota - 2",
+    "Honda - 2",
+    "Ford - 2",
+    "Chevrolet - 2",
+    "Hyundai - 2",
+    "Kia - 2",
+    "Nissan - 2",
+    "Volkswagen - 2",
   ];
 
   List<String> items3 = [
@@ -161,6 +172,39 @@ class _ExampleState extends State<Example> {
           errorText: _error,
         ),
         if (value != null) Text("Selected: $value"),
+        SizedBox(
+          width: 200,
+          child: ComboboxDesktop<String>(
+            items: items.map((e) => ComboboxItem(value: e)).toList(),
+            value: value,
+            onChanged: (value) {
+              setState(() {
+                this.value = value;
+                if (_error != null && value != null) {
+                  _error = null;
+                }
+              });
+            },
+            errorText: _error,
+          ),
+        ),
+        SizedBox(
+          width: 400,
+          child: ComboboxDesktop<String>(
+            items: items.map((e) => ComboboxItem(value: e)).toList(),
+            value: value,
+            onChanged: (value) {
+              setState(() {
+                this.value = value;
+                if (_error != null && value != null) {
+                  _error = null;
+                }
+              });
+            },
+            errorText: _error,
+            menuPosition: ComboboxMenuPosition.right,
+          ),
+        ),
       ],
     );
   }

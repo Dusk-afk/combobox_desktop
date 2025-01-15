@@ -1,5 +1,6 @@
 // Models
 export 'src/models/combobox_item.dart';
+export 'src/models/combobox_menu_position.dart';
 
 // Src
 export 'src/types.dart';

@@ -84,6 +84,22 @@ mixin _$MenuStore<T> on _MenuStore<T>, Store {
     });
   }
 
+  late final _$menuStructureAtom =
+      Atom(name: '_MenuStore.menuStructure', context: context);
+
+  @override
+  MenuStructure<dynamic>? get menuStructure {
+    _$menuStructureAtom.reportRead();
+    return super.menuStructure;
+  }
+
+  @override
+  set menuStructure(MenuStructure<dynamic>? value) {
+    _$menuStructureAtom.reportWrite(value, super.menuStructure, () {
+      super.menuStructure = value;
+    });
+  }
+
   late final _$_MenuStoreActionController =
       ActionController(name: '_MenuStore', context: context);
 
@@ -181,6 +197,7 @@ mixin _$MenuStore<T> on _MenuStore<T>, Store {
 isMenuOpen: ${isMenuOpen},
 items: ${items},
 filteredItems: ${filteredItems},
+menuStructure: ${menuStructure},
 focusedIndex: ${focusedIndex}
     ''';
   }

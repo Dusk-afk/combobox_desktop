@@ -17,6 +17,7 @@ class ComboboxField extends StatelessWidget {
             child: Column(
               children: [
                 Container(
+                  key: store.fieldKey,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     border: store.errorText != null

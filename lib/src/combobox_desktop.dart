@@ -1,4 +1,6 @@
-import 'package:combobox_desktop/src/listeners/menu_listener.dart';
+import 'package:combobox_desktop/src/listeners/structure_listener.dart';
+import 'package:combobox_desktop/src/listeners/visibility_listener.dart';
+import 'package:combobox_desktop/src/models/combobox_menu_position.dart';
 import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
 import 'package:combobox_desktop/src/stores/menu_store.dart';
 import 'package:combobox_desktop/src/types.dart';
@@ -34,6 +36,9 @@ class ComboboxDesktop<T> extends StatefulWidget {
   /// If not empty, message will also be displayed.
   final String? errorText;
 
+  /// The position of the menu.
+  final ComboboxMenuPosition menuPosition;
+
   const ComboboxDesktop({
     super.key,
     required this.items,
@@ -41,6 +46,7 @@ class ComboboxDesktop<T> extends StatefulWidget {
     required this.onChanged,
     this.stringifier,
     this.errorText,
+    this.menuPosition = ComboboxMenuPosition.below,
   });
 
   @override
@@ -48,8 +54,17 @@ class ComboboxDesktop<T> extends StatefulWidget {
 }
 
 class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
-  late final ComboboxItemStringifier<T> _itemStringifier =
+  ComboboxItemStringifier<T> get _itemStringifier =>
       widget.stringifier ?? (item) => item.toString();
+
+  ComboboxItemBuilder<T> get _itemBuilder => (item) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Text(
+            _itemStringifier(item),
+          ),
+        );
+      };
 
   late final fieldStore = ComboboxFieldStore(_itemStringifier);
   late final menuStore = MenuStore<T>(
@@ -57,6 +72,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     widget.items,
     _itemStringifier,
     widget.onChanged,
+    widget.menuPosition,
   );
 
   @override
@@ -74,6 +90,20 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     if (oldWidget.errorText != widget.errorText) {
       fieldStore.errorText = widget.errorText;
     }
+
+    if (oldWidget.onChanged != widget.onChanged) {
+      menuStore.onChanged = widget.onChanged;
+    }
+
+    if (oldWidget.stringifier != widget.stringifier) {
+      fieldStore.itemStringifier = _itemStringifier;
+      menuStore.itemStringifier = _itemStringifier;
+    }
+
+    if (oldWidget.menuPosition != widget.menuPosition) {
+      // TODO: This won't work if the menu is already open
+      menuStore.menuPosition = widget.menuPosition;
+    }
   }
 
   @override
@@ -88,8 +118,19 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
           create: (_) => menuStore,
           dispose: (_, store) => store.dispose(),
         ),
-        Provider<MenuListener>(
-          create: (context) => MenuListener(context, fieldStore, menuStore),
+        Provider<VisibilityListener<T>>(
+          create: (context) => VisibilityListener<T>(
+            context,
+            fieldStore,
+            menuStore,
+            _itemBuilder,
+          ),
+          dispose: (_, listener) => listener.dispose(),
+          lazy: false,
+        ),
+        Provider<StructureListener<T>>(
+          create: (context) => StructureListener<T>(
+              context, fieldStore, menuStore, _itemBuilder),
           dispose: (_, listener) => listener.dispose(),
           lazy: false,
         ),

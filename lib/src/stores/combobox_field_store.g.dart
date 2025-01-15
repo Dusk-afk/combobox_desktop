@@ -18,10 +18,14 @@ mixin _$ComboboxFieldStore<T> on _ComboboxFieldStore<T>, Store {
     return super.controller;
   }
 
+  bool _controllerIsInitialized = false;
+
   @override
   set controller(TextEditingController value) {
-    _$controllerAtom.reportWrite(value, super.controller, () {
+    _$controllerAtom.reportWrite(
+        value, _controllerIsInitialized ? super.controller : null, () {
       super.controller = value;
+      _controllerIsInitialized = true;
     });
   }
 
@@ -77,13 +81,30 @@ mixin _$ComboboxFieldStore<T> on _ComboboxFieldStore<T>, Store {
     });
   }
 
+  late final _$fieldKeyAtom =
+      Atom(name: '_ComboboxFieldStore.fieldKey', context: context);
+
+  @override
+  GlobalKey<State<StatefulWidget>> get fieldKey {
+    _$fieldKeyAtom.reportRead();
+    return super.fieldKey;
+  }
+
+  @override
+  set fieldKey(GlobalKey<State<StatefulWidget>> value) {
+    _$fieldKeyAtom.reportWrite(value, super.fieldKey, () {
+      super.fieldKey = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
 controller: ${controller},
 focusNode: ${focusNode},
 item: ${item},
-errorText: ${errorText}
+errorText: ${errorText},
+fieldKey: ${fieldKey}
     ''';
   }
 }
