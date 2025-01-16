@@ -21,9 +21,12 @@ class StructureListener<T> {
     menuStore.onStructureInputChange.add(onItemsChange);
   }
 
-  late final SizeRetriever<T> _sizeRetriever = SizeRetriever(context);
+  late final SizeRetriever<ComboboxActionItem> _sizeRetrieverAction =
+      SizeRetriever(context);
+  late final SizeRetriever<T> _sizeRetrieverItem = SizeRetriever(context);
 
-  void onItemsChange(List<ComboboxItem<T>> items, int focusedIndex) async {
+  void onItemsChange(ComboboxActionItem? actionItem,
+      List<ComboboxItem<T>> items, int focusedIndex) async {
     double gradientHeight = 100;
 
     final (Offset? fieldPos, Size? fieldSize) = fieldStore.getPositionAndSize();
@@ -34,12 +37,13 @@ class StructureListener<T> {
     Size screenSize = MediaQuery.of(context).size;
     print("screenSize: $screenSize");
 
-    Size actionSize = Size.zero; // TODO: Get action size
+    double width = fieldSize.width; // TODO: Determine width
+
+    Size actionSize = await _calculateActionItemSize(actionItem, width);
+    print("actionSize: $actionSize");
 
     int focusedIndex = menuStore.focusedIndex;
     print("focusedIndex: $focusedIndex");
-
-    double width = fieldSize.width; // TODO: Determine width
 
     List<Size> itemSizes = await _getItemSizes(items, width);
     print("itemSizes: $itemSizes");
@@ -47,7 +51,7 @@ class StructureListener<T> {
     print("totalSize: $totalSize");
     List<Size> cumulativeSizes = _calculateCumulativeSizes(itemSizes);
     print("cumulativeSizes: $cumulativeSizes");
-    double virtualCursorPos = _calculateVirtualCursorPos(
+    double? virtualCursorPos = _calculateVirtualCursorPos(
       itemSizes,
       focusedIndex,
     );
@@ -57,6 +61,7 @@ class StructureListener<T> {
       fieldPos,
       fieldSize,
       totalSize,
+      actionSize,
       virtualCursorPos,
       gradientHeight,
     );
@@ -71,8 +76,8 @@ class StructureListener<T> {
       isScrollable,
       availableSize,
       totalSize,
+      actionSize,
       cumulativeSizes,
-      virtualCursorPos,
       gradientHeight,
       focusedIndex,
     );
@@ -86,16 +91,24 @@ class StructureListener<T> {
       virtualCursorPos,
       listSize,
       totalSize,
+      actionSize,
       isScrollable,
       gradientHeight,
     );
     print("listScrollOffset: $listScrollOffset");
     // double cursorPos = virtualCursorPos - listScrollOffset;
-    Offset cursorPos = Offset(0, virtualCursorPos - listScrollOffset);
+    Offset cursorPos = _calculateCursorPos(
+      virtualCursorPos,
+      listScrollOffset,
+      actionSize.height,
+    );
     print("cursorPos: $cursorPos");
-    Size cursorSize = itemSizes.isEmpty
-        ? Size.zero
-        : Size(width, itemSizes[focusedIndex].height);
+    Size cursorSize = _calculateCursorSize(
+      actionSize,
+      itemSizes,
+      width,
+      focusedIndex,
+    );
     print("cursorSize: $cursorSize");
     (int start, int end) visibleItems = _calculateVisibleItems(
       itemSizes,
@@ -114,9 +127,22 @@ class StructureListener<T> {
       listScrollOffset: listScrollOffset,
       cursorPos: cursorPos,
       cursorSize: cursorSize,
-      sizes: itemSizes,
+      actionSize: actionSize,
+      itemSizes: itemSizes,
       cumalativeSizes: cumulativeSizes,
       visibleItems: visibleItems,
+    );
+  }
+
+  Future<Size> _calculateActionItemSize(
+      ComboboxActionItem? actionItem, double width) async {
+    if (actionItem == null) return Size.zero;
+    return await _sizeRetrieverAction.getSize(
+      SizedBox(
+        width: width,
+        child: actionItem.builder(context),
+      ),
+      actionItem,
     );
   }
 
@@ -126,7 +152,7 @@ class StructureListener<T> {
     for (var item in items) {
       widgets.add((_getWidget(item, width), item.value));
     }
-    return await _sizeRetriever.getSizes(widgets);
+    return await _sizeRetrieverItem.getSizes(widgets);
   }
 
   Widget _getWidget(ComboboxItem<T> item, double width) {
@@ -136,10 +162,12 @@ class StructureListener<T> {
     );
   }
 
-  double _calculateVirtualCursorPos(
+  double? _calculateVirtualCursorPos(
     List<Size> itemSizes,
     int focusedIndex,
   ) {
+    if (focusedIndex == -1) return null;
+
     double virtualCursorPos = 0;
     for (int i = 0; i < focusedIndex; i++) {
       virtualCursorPos += itemSizes[i].height;
@@ -169,7 +197,8 @@ class StructureListener<T> {
     Offset fieldPos,
     Size fieldSize,
     Size totalSize,
-    double virtualCursorPos,
+    Size actionSize,
+    double? virtualCursorPos,
     double gradientHeight,
   ) {
     switch (menuStore.menuPosition) {
@@ -181,7 +210,11 @@ class StructureListener<T> {
       case ComboboxMenuPosition.right:
         double x = fieldPos.dx + fieldSize.width;
         double y = fieldPos.dy;
-        return Offset(x, y - math.min(virtualCursorPos, gradientHeight));
+        if (virtualCursorPos == null) return Offset(x, y);
+        return Offset(
+          x,
+          y - math.min(virtualCursorPos, gradientHeight) - actionSize.height,
+        );
     }
   }
 
@@ -190,8 +223,8 @@ class StructureListener<T> {
     bool isScrollable,
     Size availableSize,
     Size totalSize,
+    Size actionSize,
     List<Size> cumulativeSizes,
-    double virtualCursorPos,
     double gradientHeight,
     int focusedIndex,
   ) {
@@ -203,25 +236,31 @@ class StructureListener<T> {
         );
 
       case ComboboxMenuPosition.right:
-        double height = isScrollable ? availableSize.height : totalSize.height;
+        double height = isScrollable
+            ? availableSize.height
+            : totalSize.height + actionSize.height;
         double leftItemsHeight = totalSize.height -
-            (focusedIndex == 0
+            (focusedIndex <= 0
                 ? 0.0
                 : cumulativeSizes[focusedIndex - 1].height);
         return Size(
           width,
-          math.min(gradientHeight + leftItemsHeight, height),
+          math.min(
+              actionSize.height + gradientHeight + leftItemsHeight, height),
         );
     }
   }
 
   double _calculateListScrollOffset(
-    double virtualCursorPos,
+    double? virtualCursorPos,
     Size listSize,
     Size totalSize,
+    Size actionSize,
     bool isScrollable,
     double gradientHeight,
   ) {
+    if (virtualCursorPos == null) return 0;
+
     switch (menuStore.menuPosition) {
       case ComboboxMenuPosition.below:
         if (!isScrollable) return 0;
@@ -241,6 +280,29 @@ class StructureListener<T> {
           return virtualCursorPos - gradientHeight;
         }
     }
+  }
+
+  Offset _calculateCursorPos(
+    double? virtualCursorPos,
+    double listScrollOffset,
+    double actionHeight,
+  ) {
+    if (virtualCursorPos == null) {
+      return Offset(0, 0);
+    } else {
+      return Offset(0, virtualCursorPos - listScrollOffset + actionHeight);
+    }
+  }
+
+  Size _calculateCursorSize(
+    Size actionSize,
+    List<Size> itemSizes,
+    double width,
+    int focusedIndex,
+  ) {
+    if (focusedIndex == -1) return actionSize;
+    if (itemSizes.isEmpty) return Size.zero;
+    return Size(width, itemSizes[focusedIndex].height);
   }
 
   (int, int) _calculateVisibleItems(

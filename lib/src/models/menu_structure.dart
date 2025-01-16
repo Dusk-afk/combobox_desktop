@@ -23,7 +23,8 @@ class MenuStructure<T> {
   final Offset cursorPos;
   final Size cursorSize;
 
-  final List<Size> sizes;
+  final Size actionSize;
+  final List<Size> itemSizes;
   final List<Size> cumalativeSizes;
   final (int start, int end) visibleItems;
 
@@ -36,7 +37,8 @@ class MenuStructure<T> {
     required this.listScrollOffset,
     required this.cursorPos,
     required this.cursorSize,
-    required this.sizes,
+    required this.actionSize,
+    required this.itemSizes,
     required this.cumalativeSizes,
     required this.visibleItems,
   });

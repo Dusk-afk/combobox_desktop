@@ -186,6 +186,10 @@ class _ExampleState extends State<Example> {
               });
             },
             errorText: _error,
+            actionItem: ComboboxActionItem(
+              title: "Create New",
+              onPressed: () {},
+            ),
           ),
         ),
         SizedBox(
@@ -203,6 +207,53 @@ class _ExampleState extends State<Example> {
             },
             errorText: _error,
             menuPosition: ComboboxMenuPosition.right,
+          ),
+        ),
+        SizedBox(
+          width: 400,
+          child: ComboboxDesktop<String>(
+            items: items.map((e) => ComboboxItem(value: e)).toList(),
+            value: value,
+            onChanged: (value) {
+              setState(() {
+                this.value = value;
+                if (_error != null && value != null) {
+                  _error = null;
+                }
+              });
+            },
+            errorText: _error,
+            menuPosition: ComboboxMenuPosition.right,
+            actionItem: ComboboxActionItem(
+              title: "Create New",
+              onPressed: () {
+                showAboutDialog(context: context);
+              },
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 300,
+        ),
+        SizedBox(
+          width: 400,
+          child: ComboboxDesktop<String>(
+            items: items.map((e) => ComboboxItem(value: e)).toList(),
+            value: value,
+            onChanged: (value) {
+              setState(() {
+                this.value = value;
+                if (_error != null && value != null) {
+                  _error = null;
+                }
+              });
+            },
+            errorText: _error,
+            menuPosition: ComboboxMenuPosition.right,
+            actionItem: ComboboxActionItem(
+              title: "Create New",
+              onPressed: () {},
+            ),
           ),
         ),
       ],

@@ -1,5 +1,4 @@
 import 'package:combobox_desktop/combobox_desktop.dart';
-import 'package:combobox_desktop/src/models/combobox_menu_position.dart';
 import 'package:combobox_desktop/src/models/menu_structure.dart';
 import 'package:combobox_desktop/src/services/hook.dart';
 import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
@@ -24,6 +23,7 @@ abstract class _MenuStore<T> with Store {
     this.itemStringifier,
     this.onChanged,
     this.menuPosition,
+    this.actionItem,
   ) {
     filteredItems = items;
 
@@ -60,9 +60,7 @@ abstract class _MenuStore<T> with Store {
     resetFilter();
 
     Future.microtask(() {
-      onStructureInputChange((callback) {
-        callback(filteredItems, focusedIndex);
-      });
+      callOnStructureInputChange();
     });
 
     // If the current item is not in the new list, reset the item
@@ -87,34 +85,67 @@ abstract class _MenuStore<T> with Store {
 
   @action
   void focusNextItem() {
-    _focusedIndex = (focusedIndex + 1) % items.length;
-    onStructureInputChange((callback) {
-      callback(filteredItems, focusedIndex);
-    });
+    if (_focusedIndex < filteredItems.length - 1) {
+      _focusedIndex++;
+    }
+    callOnStructureInputChange();
   }
 
   @action
   void focusPreviousItem() {
-    _focusedIndex = (focusedIndex - 1) % items.length;
-    onStructureInputChange((callback) {
-      callback(filteredItems, focusedIndex);
-    });
+    int min = actionItem == null ? 0 : -1;
+    if (_focusedIndex > min) {
+      _focusedIndex--;
+    }
+    callOnStructureInputChange();
   }
 
   @action
   void selectItem([int? index]) {
     _focusedIndex = index ?? focusedIndex;
+
+    if (_focusedIndex < 0) {
+      callActionItem();
+      return;
+    }
+
     final item = filteredItems[_focusedIndex];
     _ignoreFilter = itemStringifier(item.value);
     onChanged.call(item.value);
     fieldStore.focusNode.nextFocus();
   }
 
+  @action
+  void callActionItem() {
+    if (actionItem != null) {
+      _focusedIndex = -1;
+      actionItem!.onPressed();
+    }
+  }
+
   @observable
   late List<ComboboxItem<T>> filteredItems;
 
-  Hook<void Function(List<ComboboxItem<T>> items, int focusedIndex)>
-      onStructureInputChange = Hook();
+  Hook<
+      void Function(
+        ComboboxActionItem? actionItem,
+        List<ComboboxItem<T>> items,
+        int focusedIndex,
+      )> onStructureInputChange = Hook();
+
+  void callOnStructureInputChange({
+    ComboboxActionItem? actionItem,
+    List<ComboboxItem<T>>? items,
+    int? focusedIndex,
+  }) {
+    onStructureInputChange((callback) {
+      callback(
+        actionItem ?? this.actionItem,
+        items ?? filteredItems,
+        focusedIndex ?? this.focusedIndex,
+      );
+    });
+  }
 
   /// Used for preventing unnecessary filtering if the filter value hasn't changed
   String? _lastFilter;
@@ -140,9 +171,7 @@ abstract class _MenuStore<T> with Store {
             item.value.toString().toLowerCase().contains(value.toLowerCase()))
         .toList();
 
-    onStructureInputChange((callback) {
-      callback(filteredItems, focusedIndex);
-    });
+    callOnStructureInputChange();
 
     if (fieldStore.item != null) {
       // While the user is typing, we do not want to select any item
@@ -163,6 +192,9 @@ abstract class _MenuStore<T> with Store {
 
   @observable
   MenuStructure? menuStructure;
+
+  @observable
+  ComboboxActionItem? actionItem;
 
   void dispose() {
     // Unhook the keyboard events

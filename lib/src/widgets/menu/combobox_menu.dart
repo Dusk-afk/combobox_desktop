@@ -34,7 +34,7 @@ class ComboboxMenu<T> extends StatelessWidget {
           return Container();
         }
 
-        final duration = Duration(milliseconds: 0);
+        final duration = Duration(milliseconds: 50);
 
         return AnimatedPositioned(
           duration: duration,
@@ -44,7 +44,7 @@ class ComboboxMenu<T> extends StatelessWidget {
           height: store.menuStructure!.frameSize.height,
           child: TextFieldTapRegion(
             child: Material(
-              color: Colors.transparent,
+              color: Colors.red,
               child: Theme(
                 data: Theme.of(realContext).copyWith(
                   canvasColor: Colors.transparent,
@@ -52,6 +52,17 @@ class ComboboxMenu<T> extends StatelessWidget {
                 child: Center(
                   child: Stack(
                     children: [
+                      if (store.actionItem != null)
+                        Positioned(
+                          left: 0,
+                          top: 0,
+                          width: store.menuStructure!.actionSize.width,
+                          height: store.menuStructure!.actionSize.height,
+                          child: GestureDetector(
+                            onTap: store.callActionItem,
+                            child: store.actionItem!.builder(context),
+                          ),
+                        ),
                       AnimatedPositioned(
                         duration: duration,
                         left: store.menuStructure!.listPos.dx,
@@ -84,7 +95,8 @@ class ComboboxMenu<T> extends StatelessWidget {
                                               .cumalativeSizes[i - 1].height -
                                           store.menuStructure!.listScrollOffset,
                                   width: store.menuStructure!.listSize.width,
-                                  height: store.menuStructure!.sizes[i].height,
+                                  height:
+                                      store.menuStructure!.itemSizes[i].height,
                                   child: MouseRegion(
                                     cursor: SystemMouseCursors.click,
                                     onEnter: (event) {

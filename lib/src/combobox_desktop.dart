@@ -1,5 +1,6 @@
 import 'package:combobox_desktop/src/listeners/structure_listener.dart';
 import 'package:combobox_desktop/src/listeners/visibility_listener.dart';
+import 'package:combobox_desktop/src/models/combobox_action_item.dart';
 import 'package:combobox_desktop/src/models/combobox_menu_position.dart';
 import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
 import 'package:combobox_desktop/src/stores/menu_store.dart';
@@ -39,6 +40,9 @@ class ComboboxDesktop<T> extends StatefulWidget {
   /// The position of the menu.
   final ComboboxMenuPosition menuPosition;
 
+  /// The action item to display at the top of the menu.
+  final ComboboxActionItem? actionItem;
+
   const ComboboxDesktop({
     super.key,
     required this.items,
@@ -47,6 +51,7 @@ class ComboboxDesktop<T> extends StatefulWidget {
     this.stringifier,
     this.errorText,
     this.menuPosition = ComboboxMenuPosition.below,
+    this.actionItem,
   });
 
   @override
@@ -73,6 +78,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     _itemStringifier,
     widget.onChanged,
     widget.menuPosition,
+    widget.actionItem,
   );
 
   @override
@@ -103,6 +109,10 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     if (oldWidget.menuPosition != widget.menuPosition) {
       // TODO: This won't work if the menu is already open
       menuStore.menuPosition = widget.menuPosition;
+    }
+
+    if (oldWidget.actionItem != widget.actionItem) {
+      menuStore.actionItem = widget.actionItem;
     }
   }
 

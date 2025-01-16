@@ -13,6 +13,11 @@ class SizeRetriever<T> {
 
   SizeRetriever(this.context);
 
+  /// Returns the size of a widget.
+  Future<Size> getSize(Widget widget, T key) async {
+    return (await getSizes([(widget, key)]))[0];
+  }
+
   /// Returns the size of list of widgets.
   Future<List<Size>> getSizes(List<KeyedWidget<T>> widgets) async {
     debugPrint("Getting sizes of ${widgets.length} widgets");

@@ -100,6 +100,22 @@ mixin _$MenuStore<T> on _MenuStore<T>, Store {
     });
   }
 
+  late final _$actionItemAtom =
+      Atom(name: '_MenuStore.actionItem', context: context);
+
+  @override
+  ComboboxActionItem? get actionItem {
+    _$actionItemAtom.reportRead();
+    return super.actionItem;
+  }
+
+  @override
+  set actionItem(ComboboxActionItem? value) {
+    _$actionItemAtom.reportWrite(value, super.actionItem, () {
+      super.actionItem = value;
+    });
+  }
+
   late final _$_MenuStoreActionController =
       ActionController(name: '_MenuStore', context: context);
 
@@ -170,6 +186,17 @@ mixin _$MenuStore<T> on _MenuStore<T>, Store {
   }
 
   @override
+  void callActionItem() {
+    final _$actionInfo = _$_MenuStoreActionController.startAction(
+        name: '_MenuStore.callActionItem');
+    try {
+      return super.callActionItem();
+    } finally {
+      _$_MenuStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void filterItems(String value) {
     final _$actionInfo = _$_MenuStoreActionController.startAction(
         name: '_MenuStore.filterItems');
@@ -198,6 +225,7 @@ isMenuOpen: ${isMenuOpen},
 items: ${items},
 filteredItems: ${filteredItems},
 menuStructure: ${menuStructure},
+actionItem: ${actionItem},
 focusedIndex: ${focusedIndex}
     ''';
   }
