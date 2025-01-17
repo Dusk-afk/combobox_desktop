@@ -25,8 +25,12 @@ class StructureListener<T> {
       SizeRetriever(context);
   late final SizeRetriever<T> _sizeRetrieverItem = SizeRetriever(context);
 
-  void onItemsChange(ComboboxActionItem? actionItem,
-      List<ComboboxItem<T>> items, int focusedIndex) async {
+  void onItemsChange(
+    ComboboxActionItem? actionItem,
+    List<ComboboxItem<T>> items,
+    int focusedIndex,
+    ComboboxMenuDecoration? decoration,
+  ) async {
     double gradientHeight = 100;
 
     final (Offset? fieldPos, Size? fieldSize) = fieldStore.getPositionAndSize();
@@ -37,7 +41,8 @@ class StructureListener<T> {
     Size screenSize = MediaQuery.of(context).size;
     print("screenSize: $screenSize");
 
-    double width = fieldSize.width; // TODO: Determine width
+    double width = _calculateWidth(screenSize, fieldPos, fieldSize, decoration);
+    print("width: $width");
 
     Size actionSize = await _calculateActionItemSize(actionItem, width);
     print("actionSize: $actionSize");
@@ -70,7 +75,8 @@ class StructureListener<T> {
       screenSize.width - framePos.dx,
       screenSize.height - framePos.dy,
     );
-    bool isScrollable = totalSize.height > availableSize.height;
+    bool isScrollable =
+        totalSize.height + actionSize.height > availableSize.height;
     Size frameSize = _calculateFrameSize(
       width,
       isScrollable,
@@ -118,6 +124,12 @@ class StructureListener<T> {
     );
     print("visibleItems: $visibleItems");
 
+    final (bool itemsAbove, bool itemsBelow) = _calculateItemsAboveAndBelow(
+      listScrollOffset,
+      listSize,
+      totalSize,
+    );
+
     menuStore.menuStructure = MenuStructure<T>(
       items: items,
       framePos: framePos,
@@ -131,16 +143,42 @@ class StructureListener<T> {
       itemSizes: itemSizes,
       cumalativeSizes: cumulativeSizes,
       visibleItems: visibleItems,
+      itemsAbove: itemsAbove,
+      itemsBelow: itemsBelow,
     );
   }
 
+  double _calculateWidth(
+    Size screenSize,
+    Offset fieldPos,
+    Size fieldSize,
+    ComboboxMenuDecoration? decoration,
+  ) {
+    double availableWidth = switch (menuStore.menuPosition) {
+      ComboboxMenuPosition.below => screenSize.width - fieldPos.dx,
+      ComboboxMenuPosition.right =>
+        screenSize.width - fieldPos.dx - fieldSize.width,
+    };
+
+    double desiredWidth = fieldSize.width;
+
+    return math.min(desiredWidth, availableWidth);
+  }
+
   Future<Size> _calculateActionItemSize(
-      ComboboxActionItem? actionItem, double width) async {
+    ComboboxActionItem? actionItem,
+    double width,
+  ) async {
     if (actionItem == null) return Size.zero;
     return await _sizeRetrieverAction.getSize(
       SizedBox(
         width: width,
-        child: actionItem.builder(context),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            actionItem.builder(),
+          ],
+        ),
       ),
       actionItem,
     );
@@ -152,13 +190,21 @@ class StructureListener<T> {
     for (var item in items) {
       widgets.add((_getWidget(item, width), item.value));
     }
-    return await _sizeRetrieverItem.getSizes(widgets);
+    List<Size> sizes = await _sizeRetrieverItem.getSizes(widgets);
+    List<Size> widthAdjustedSizes =
+        sizes.map((e) => Size(width, e.height)).toList();
+    return widthAdjustedSizes;
   }
 
   Widget _getWidget(ComboboxItem<T> item, double width) {
     return SizedBox(
       width: width,
-      child: itemBuilder(item.value),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          itemBuilder(item.value),
+        ],
+      ),
     );
   }
 
@@ -232,7 +278,9 @@ class StructureListener<T> {
       case ComboboxMenuPosition.below:
         return Size(
           width,
-          isScrollable ? availableSize.height : totalSize.height,
+          isScrollable
+              ? availableSize.height
+              : totalSize.height + actionSize.height,
         );
 
       case ComboboxMenuPosition.right:
@@ -339,7 +387,18 @@ class StructureListener<T> {
       }
     }
 
+    // Add relaxation
+    if (start > 0) start--;
+    if (end < itemSizes.length - 1) end++;
+
     return (start, end);
+  }
+
+  (bool, bool) _calculateItemsAboveAndBelow(
+      double listScrollOffset, Size listSize, Size totalSize) {
+    bool itemsAbove = listScrollOffset > 0;
+    bool itemsBelow = listScrollOffset < (totalSize.height - listSize.height);
+    return (itemsAbove, itemsBelow);
   }
 
   void dispose() {

@@ -1,17 +1,12 @@
+import 'package:combobox_desktop/combobox_desktop.dart';
 import 'package:combobox_desktop/src/listeners/structure_listener.dart';
 import 'package:combobox_desktop/src/listeners/visibility_listener.dart';
-import 'package:combobox_desktop/src/models/combobox_action_item.dart';
-import 'package:combobox_desktop/src/models/combobox_menu_position.dart';
 import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
 import 'package:combobox_desktop/src/stores/menu_store.dart';
-import 'package:combobox_desktop/src/types.dart';
 import 'package:combobox_desktop/src/widgets/combobox_field.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-
-import 'models/combobox_item.dart';
 
 class ComboboxDesktop<T> extends StatefulWidget {
   /// List of items to display in the combobox.
@@ -28,7 +23,14 @@ class ComboboxDesktop<T> extends StatefulWidget {
   final ComboboxItemChanged<T> onChanged;
 
   /// Function to convert the item to a string.
+  ///
+  /// This is used to display the item in the field.
+  ///
+  /// This will also be used to display the item in the menu if [itemBuilder] is not provided.
   final ComboboxItemStringifier<T>? stringifier;
+
+  /// Function to build the item in the menu.
+  final ComboboxItemBuilder<T>? itemBuilder;
 
   /// Error text to be displayed below the field.
   ///
@@ -40,8 +42,25 @@ class ComboboxDesktop<T> extends StatefulWidget {
   /// The position of the menu.
   final ComboboxMenuPosition menuPosition;
 
+  /// The cursor builder for the menu.
+  final ComboboxCursorBuilder? cursorBuilder;
+
+  /// The background builder for the menu items.
+  ///
+  /// This is recommended instead of implementing the background in the item builder.
+  /// Because the list will be displayed in between the background and the item if this is used.
+  final ComboboxItemBackgroundBuilder? itemBackgroundBuilder;
+
   /// The action item to display at the top of the menu.
   final ComboboxActionItem? actionItem;
+
+  /// The indicator to display if the items are available either above or below.
+  ///
+  /// This will be flipped to be used as bottom indicator.
+  final ComboboxItemsIndicatorBuilder? itemsIndicatorBuilder;
+
+  /// The decoration for the menu.
+  final ComboboxMenuDecoration? menuDecoration;
 
   const ComboboxDesktop({
     super.key,
@@ -49,9 +68,14 @@ class ComboboxDesktop<T> extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.stringifier,
+    this.itemBuilder,
     this.errorText,
     this.menuPosition = ComboboxMenuPosition.below,
     this.actionItem,
+    this.cursorBuilder,
+    this.itemBackgroundBuilder,
+    this.menuDecoration,
+    this.itemsIndicatorBuilder,
   });
 
   @override
@@ -62,12 +86,22 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
   ComboboxItemStringifier<T> get _itemStringifier =>
       widget.stringifier ?? (item) => item.toString();
 
-  ComboboxItemBuilder<T> get _itemBuilder => (item) {
+  ComboboxItemBuilder<T> get _itemBuilder =>
+      widget.itemBuilder ??
+      (item) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Text(
             _itemStringifier(item),
           ),
+        );
+      };
+
+  ComboboxCursorBuilder get _cursorBuilder =>
+      widget.cursorBuilder ??
+      () {
+        return Container(
+          color: Colors.blue,
         );
       };
 
@@ -79,6 +113,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     widget.onChanged,
     widget.menuPosition,
     widget.actionItem,
+    widget.menuDecoration,
   );
 
   @override
@@ -114,6 +149,10 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     if (oldWidget.actionItem != widget.actionItem) {
       menuStore.actionItem = widget.actionItem;
     }
+
+    if (oldWidget.menuDecoration != widget.menuDecoration) {
+      menuStore.decoration = widget.menuDecoration;
+    }
   }
 
   @override
@@ -134,13 +173,20 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
             fieldStore,
             menuStore,
             _itemBuilder,
+            _cursorBuilder,
+            widget.itemBackgroundBuilder,
+            widget.itemsIndicatorBuilder,
           ),
           dispose: (_, listener) => listener.dispose(),
           lazy: false,
         ),
         Provider<StructureListener<T>>(
           create: (context) => StructureListener<T>(
-              context, fieldStore, menuStore, _itemBuilder),
+            context,
+            fieldStore,
+            menuStore,
+            _itemBuilder,
+          ),
           dispose: (_, listener) => listener.dispose(),
           lazy: false,
         ),

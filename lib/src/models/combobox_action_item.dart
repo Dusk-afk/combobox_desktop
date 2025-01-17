@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 class ComboboxActionItem {
   final String title;
   final VoidCallback onPressed;
-  final WidgetBuilder? _builder;
+  final Widget Function()? _builder;
 
   ComboboxActionItem({
     required this.title,
     required this.onPressed,
-    WidgetBuilder? builder,
+    Widget Function()? builder,
   }) : _builder = builder;
 
-  WidgetBuilder get _defaultBuilder => (context) {
-        return Container(
+  Widget Function() get _defaultBuilder => () {
+        return SizedBox(
           height: 50,
           child: Center(
             child: Text(title),
@@ -20,5 +20,5 @@ class ComboboxActionItem {
         );
       };
 
-  WidgetBuilder get builder => _builder ?? _defaultBuilder;
+  Widget Function() get builder => _builder ?? _defaultBuilder;
 }

@@ -15,12 +15,18 @@ class VisibilityListener<T> {
   final MenuStore<T> menuStore;
   final BuildContext context;
   final ComboboxItemBuilder<T> itemBuilder;
+  final ComboboxCursorBuilder cursorBuilder;
+  final ComboboxItemBackgroundBuilder? itemBackgroundBuilder;
+  final ComboboxItemsIndicatorBuilder? itemsIndicatorBuilder;
 
   VisibilityListener(
     this.context,
     this.fieldStore,
     this.menuStore,
     this.itemBuilder,
+    this.cursorBuilder,
+    this.itemBackgroundBuilder,
+    this.itemsIndicatorBuilder,
   ) {
     fieldStore.focusNode.addListener(_focusListener);
   }
@@ -43,6 +49,9 @@ class VisibilityListener<T> {
         return ComboboxMenu<T>(
           store: menuStore,
           itemBuilder: itemBuilder,
+          cursorBuilder: cursorBuilder,
+          itemBackgroundBuilder: itemBackgroundBuilder,
+          itemsIndicatorBuilder: itemsIndicatorBuilder,
           realContext: context,
         );
       },

@@ -24,6 +24,7 @@ abstract class _MenuStore<T> with Store {
     this.onChanged,
     this.menuPosition,
     this.actionItem,
+    this.decoration,
   ) {
     filteredItems = items;
 
@@ -131,18 +132,21 @@ abstract class _MenuStore<T> with Store {
         ComboboxActionItem? actionItem,
         List<ComboboxItem<T>> items,
         int focusedIndex,
+        ComboboxMenuDecoration? decoration,
       )> onStructureInputChange = Hook();
 
   void callOnStructureInputChange({
     ComboboxActionItem? actionItem,
     List<ComboboxItem<T>>? items,
     int? focusedIndex,
+    ComboboxMenuDecoration? decoration,
   }) {
     onStructureInputChange((callback) {
       callback(
         actionItem ?? this.actionItem,
         items ?? filteredItems,
         focusedIndex ?? this.focusedIndex,
+        decoration ?? this.decoration,
       );
     });
   }
@@ -195,6 +199,15 @@ abstract class _MenuStore<T> with Store {
 
   @observable
   ComboboxActionItem? actionItem;
+
+  @observable
+  ComboboxMenuDecoration? decoration;
+
+  @action
+  void setDecoration(ComboboxMenuDecoration? decoration) {
+    this.decoration = decoration;
+    callOnStructureInputChange();
+  }
 
   void dispose() {
     // Unhook the keyboard events

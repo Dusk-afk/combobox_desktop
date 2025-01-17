@@ -27,6 +27,8 @@ class MenuStructure<T> {
   final List<Size> itemSizes;
   final List<Size> cumalativeSizes;
   final (int start, int end) visibleItems;
+  final bool itemsAbove;
+  final bool itemsBelow;
 
   MenuStructure({
     required this.items,
@@ -41,5 +43,7 @@ class MenuStructure<T> {
     required this.itemSizes,
     required this.cumalativeSizes,
     required this.visibleItems,
+    required this.itemsAbove,
+    required this.itemsBelow,
   });
 }

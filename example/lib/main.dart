@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:combobox_desktop/combobox_desktop.dart';
 
@@ -156,6 +157,7 @@ class _ExampleState extends State<Example> {
               },
               child: Text("Toggle Error Message"),
             ),
+            Text("Value: $value"),
           ],
         ),
         ComboboxDesktop<String>(
@@ -212,7 +214,11 @@ class _ExampleState extends State<Example> {
         SizedBox(
           width: 400,
           child: ComboboxDesktop<String>(
-            items: items.map((e) => ComboboxItem(value: e)).toList(),
+            items: items
+                .mapIndexed((i, e) => ComboboxItem(
+                      value: e,
+                    ))
+                .toList(),
             value: value,
             onChanged: (value) {
               setState(() {
@@ -229,6 +235,113 @@ class _ExampleState extends State<Example> {
               onPressed: () {
                 showAboutDialog(context: context);
               },
+              builder: () => Container(
+                padding: EdgeInsets.symmetric(
+                  vertical: 20,
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 9,
+                          horizontal: 26,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFEBF4FF),
+                          border: Border.all(
+                            width: 1,
+                            color: Color(0xFF1A84F6),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Create New',
+                            style: TextStyle(
+                              color: Color(0xFF2D2D2D),
+                              fontSize: 14,
+                              // fontFamily: 'Segoe UI',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            itemBackgroundBuilder: (i) => Container(
+              color: [
+                Colors.grey.shade100,
+                Colors.white,
+              ][i % 2],
+            ),
+            cursorBuilder: () => Container(
+              decoration: BoxDecoration(
+                color: Color(0xFFEBF4FF),
+                border: Border.all(
+                  width: 1,
+                  color: Color(0xFF1A84F6),
+                ),
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ),
+            itemBuilder: (item) {
+              return Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                child: Text(
+                  item,
+                  style: const TextStyle(
+                    color: Colors.black54,
+                  ),
+                ),
+              );
+            },
+            menuDecoration: ComboboxMenuDecoration(
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  offset: Offset(0, 4),
+                  blurRadius: 5,
+                )
+              ],
+            ),
+            itemsIndicatorBuilder: () => Container(
+              height: 75,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white,
+                    Colors.white.withValues(alpha: 0),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [
+                    0.2,
+                    1.0,
+                  ],
+                ),
+              ),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  padding: EdgeInsets.only(
+                    top: 5,
+                  ),
+                  child: Transform.rotate(
+                    angle: 3.14,
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),

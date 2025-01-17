@@ -116,6 +116,22 @@ mixin _$MenuStore<T> on _MenuStore<T>, Store {
     });
   }
 
+  late final _$decorationAtom =
+      Atom(name: '_MenuStore.decoration', context: context);
+
+  @override
+  ComboboxMenuDecoration? get decoration {
+    _$decorationAtom.reportRead();
+    return super.decoration;
+  }
+
+  @override
+  set decoration(ComboboxMenuDecoration? value) {
+    _$decorationAtom.reportWrite(value, super.decoration, () {
+      super.decoration = value;
+    });
+  }
+
   late final _$_MenuStoreActionController =
       ActionController(name: '_MenuStore', context: context);
 
@@ -219,6 +235,17 @@ mixin _$MenuStore<T> on _MenuStore<T>, Store {
   }
 
   @override
+  void setDecoration(ComboboxMenuDecoration? decoration) {
+    final _$actionInfo = _$_MenuStoreActionController.startAction(
+        name: '_MenuStore.setDecoration');
+    try {
+      return super.setDecoration(decoration);
+    } finally {
+      _$_MenuStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 isMenuOpen: ${isMenuOpen},
@@ -226,6 +253,7 @@ items: ${items},
 filteredItems: ${filteredItems},
 menuStructure: ${menuStructure},
 actionItem: ${actionItem},
+decoration: ${decoration},
 focusedIndex: ${focusedIndex}
     ''';
   }
