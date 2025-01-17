@@ -18,6 +18,7 @@ class VisibilityListener<T> {
   final ComboboxCursorBuilder cursorBuilder;
   final ComboboxItemBackgroundBuilder? itemBackgroundBuilder;
   final ComboboxItemsIndicatorBuilder? itemsIndicatorBuilder;
+  bool _disabled;
 
   VisibilityListener(
     this.context,
@@ -27,6 +28,7 @@ class VisibilityListener<T> {
     this.cursorBuilder,
     this.itemBackgroundBuilder,
     this.itemsIndicatorBuilder,
+    this._disabled,
   ) {
     fieldStore.focusNode.addListener(_focusListener);
   }
@@ -35,6 +37,8 @@ class VisibilityListener<T> {
 
   /// Listener for the focus state of the field.
   void _focusListener() {
+    if (_disabled) return;
+
     if (fieldStore.focusNode.hasFocus && !menuStore.isMenuOpen) {
       _openMenu();
     } else if (!fieldStore.focusNode.hasFocus && menuStore.isMenuOpen) {
@@ -70,6 +74,18 @@ class VisibilityListener<T> {
     menuStore.closeMenu();
     _overlayEntry?.remove();
     _overlayEntry = null;
+  }
+
+  bool get disabled => _disabled;
+  set disabled(bool value) {
+    _disabled = value;
+    Future.microtask(() {
+      if (value) {
+        _closeMenu();
+      } else {
+        _focusListener();
+      }
+    });
   }
 
   void dispose() {

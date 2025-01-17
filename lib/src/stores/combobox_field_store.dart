@@ -15,7 +15,7 @@ class ComboboxFieldStore<T> = _ComboboxFieldStore<T>
 abstract class _ComboboxFieldStore<T> with Store {
   ComboboxItemStringifier<T> itemStringifier;
 
-  _ComboboxFieldStore(this.itemStringifier);
+  _ComboboxFieldStore(this.itemStringifier, this._disabled);
 
   @observable
   late TextEditingController controller = TextEditingController()
@@ -92,7 +92,7 @@ abstract class _ComboboxFieldStore<T> with Store {
   FocusNode _createFocusNode() {
     return FocusNode(onKeyEvent: (node, event) {
       if (_focusNodeBlacklistedKeys.containsKey(event.logicalKey)) {
-        if (event is KeyDownEvent || event is KeyRepeatEvent) {
+        if (!_disabled && (event is KeyDownEvent || event is KeyRepeatEvent)) {
           _focusNodeBlacklistedKeys[event.logicalKey]?.call();
         }
         return KeyEventResult.handled;
@@ -135,6 +135,11 @@ abstract class _ComboboxFieldStore<T> with Store {
       return (null, null);
     }
     return (renderBox.localToGlobal(Offset.zero), renderBox.size);
+  }
+
+  bool _disabled;
+  set disabled(bool value) {
+    _disabled = value;
   }
 
   void dispose() {

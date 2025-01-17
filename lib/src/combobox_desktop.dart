@@ -59,8 +59,19 @@ class ComboboxDesktop<T> extends StatefulWidget {
   /// This will be flipped to be used as bottom indicator.
   final ComboboxItemsIndicatorBuilder? itemsIndicatorBuilder;
 
+  /// The decoration for the field.
+  final ComboboxFieldDecoration fieldDecoration;
+
   /// The decoration for the menu.
   final ComboboxMenuDecoration? menuDecoration;
+
+  /// If true, the field is read-only.
+  final bool readOnly;
+
+  /// If true, the field is disabled.
+  ///
+  /// In this state, the field is read-only and their is additional styling to show that the field is disabled.
+  final bool disabled;
 
   const ComboboxDesktop({
     super.key,
@@ -74,8 +85,11 @@ class ComboboxDesktop<T> extends StatefulWidget {
     this.actionItem,
     this.cursorBuilder,
     this.itemBackgroundBuilder,
+    required this.fieldDecoration,
     this.menuDecoration,
     this.itemsIndicatorBuilder,
+    this.readOnly = false,
+    this.disabled = false,
   });
 
   @override
@@ -105,7 +119,10 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
         );
       };
 
-  late final fieldStore = ComboboxFieldStore(_itemStringifier);
+  late final fieldStore = ComboboxFieldStore(
+    _itemStringifier,
+    widget.disabled,
+  );
   late final menuStore = MenuStore<T>(
     fieldStore,
     widget.items,
@@ -114,6 +131,16 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     widget.menuPosition,
     widget.actionItem,
     widget.menuDecoration,
+  );
+  late final visibilityListener = VisibilityListener<T>(
+    context,
+    fieldStore,
+    menuStore,
+    _itemBuilder,
+    _cursorBuilder,
+    widget.itemBackgroundBuilder,
+    widget.itemsIndicatorBuilder,
+    widget.disabled,
   );
 
   @override
@@ -153,6 +180,12 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     if (oldWidget.menuDecoration != widget.menuDecoration) {
       menuStore.decoration = widget.menuDecoration;
     }
+
+    if (oldWidget.disabled != widget.disabled ||
+        oldWidget.readOnly != widget.readOnly) {
+      fieldStore.disabled = widget.disabled || widget.readOnly;
+      visibilityListener.disabled = widget.disabled || widget.readOnly;
+    }
   }
 
   @override
@@ -168,15 +201,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
           dispose: (_, store) => store.dispose(),
         ),
         Provider<VisibilityListener<T>>(
-          create: (context) => VisibilityListener<T>(
-            context,
-            fieldStore,
-            menuStore,
-            _itemBuilder,
-            _cursorBuilder,
-            widget.itemBackgroundBuilder,
-            widget.itemsIndicatorBuilder,
-          ),
+          create: (context) => visibilityListener,
           dispose: (_, listener) => listener.dispose(),
           lazy: false,
         ),
@@ -191,7 +216,12 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
           lazy: false,
         ),
       ],
-      child: ComboboxField(),
+      child: ComboboxField(
+        decoration: widget.fieldDecoration,
+        menuPosition: widget.menuPosition,
+        disabled: widget.disabled,
+        readOnly: widget.readOnly,
+      ),
     );
   }
 }

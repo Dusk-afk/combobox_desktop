@@ -106,59 +106,83 @@ class _ExampleState extends State<Example> {
   String? value;
 
   String? _error;
+  bool _readOnly = false;
+  bool _disabled = false;
 
   @override
   Widget build(BuildContext context) {
+    final style = TextStyle(
+      color: Colors.black,
+      fontSize: 32,
+    );
     return Column(
       children: [
-        Row(
-          children: [
-            FilledButton(
-              onPressed: () {
-                setState(() {
-                  if (value == null) {
-                    value = items.first;
-                  } else {
-                    value = items[(items.indexOf(value!) + 1) % items.length];
-                  }
-                });
-              },
-              child: Text("Next"),
-            ),
-            FilledButton(
-              onPressed: () {
-                setState(() {
-                  _itemsIndex = (_itemsIndex + 1) % itemsList.length;
-                });
-              },
-              child: Text("Switch Items"),
-            ),
-            FilledButton(
-              onPressed: () {
-                setState(() {
-                  if (_error == null) {
-                    _error = "";
-                  } else {
-                    _error = null;
-                  }
-                });
-              },
-              child: Text("Toggle Error Border"),
-            ),
-            FilledButton(
-              onPressed: () {
-                setState(() {
-                  if (_error == null) {
-                    _error = "Error message";
-                  } else {
-                    _error = null;
-                  }
-                });
-              },
-              child: Text("Toggle Error Message"),
-            ),
-            Text("Value: $value"),
-          ],
+        TextFieldTapRegion(
+          child: Row(
+            children: [
+              FilledButton(
+                onPressed: () {
+                  setState(() {
+                    if (value == null) {
+                      value = items.first;
+                    } else {
+                      value = items[(items.indexOf(value!) + 1) % items.length];
+                    }
+                  });
+                },
+                child: Text("Next"),
+              ),
+              FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _itemsIndex = (_itemsIndex + 1) % itemsList.length;
+                  });
+                },
+                child: Text("Switch Items"),
+              ),
+              FilledButton(
+                onPressed: () {
+                  setState(() {
+                    if (_error == null) {
+                      _error = "";
+                    } else {
+                      _error = null;
+                    }
+                  });
+                },
+                child: Text("Toggle Error Border"),
+              ),
+              FilledButton(
+                onPressed: () {
+                  setState(() {
+                    if (_error == null) {
+                      _error = "Error message";
+                    } else {
+                      _error = null;
+                    }
+                  });
+                },
+                child: Text("Toggle Error Message"),
+              ),
+              FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _readOnly = !_readOnly;
+                  });
+                },
+                child: Text("Toggle Read-only"),
+              ),
+              FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _disabled = !_disabled;
+                  });
+                },
+                child: Text("Toggle Disabled"),
+              ),
+              Text("Value: $value"),
+            ],
+          ),
         ),
         ComboboxDesktop<String>(
           items: items.map((e) => ComboboxItem(value: e)).toList(),
@@ -172,6 +196,9 @@ class _ExampleState extends State<Example> {
             });
           },
           errorText: _error,
+          fieldDecoration: ComboboxFieldDecoration(
+            style: style,
+          ),
         ),
         if (value != null) Text("Selected: $value"),
         SizedBox(
@@ -192,6 +219,9 @@ class _ExampleState extends State<Example> {
               title: "Create New",
               onPressed: () {},
             ),
+            fieldDecoration: ComboboxFieldDecoration(
+              style: style,
+            ),
           ),
         ),
         SizedBox(
@@ -209,8 +239,12 @@ class _ExampleState extends State<Example> {
             },
             errorText: _error,
             menuPosition: ComboboxMenuPosition.right,
+            fieldDecoration: ComboboxFieldDecoration(
+              style: style,
+            ),
           ),
         ),
+        SizedBox(height: 50),
         SizedBox(
           width: 400,
           child: ComboboxDesktop<String>(
@@ -230,6 +264,8 @@ class _ExampleState extends State<Example> {
             },
             errorText: _error,
             menuPosition: ComboboxMenuPosition.right,
+            readOnly: _readOnly,
+            disabled: _disabled,
             actionItem: ComboboxActionItem(
               title: "Create New",
               onPressed: () {
@@ -301,6 +337,28 @@ class _ExampleState extends State<Example> {
                 ),
               );
             },
+            fieldDecoration: ComboboxFieldDecoration(
+              borderFocusColor: const Color.fromARGB(255, 16, 110, 187),
+              borderWidth: 2,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+              ),
+              borderRadius: BorderRadius.circular(4),
+              padding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
+              placeholderText: "Select an item",
+              placeholderStyle: TextStyle(
+                color: Colors.black54,
+                fontSize: 16,
+              ),
+              errorStyle: TextStyle(
+                color: Colors.red,
+                fontSize: 16,
+              ),
+            ),
             menuDecoration: ComboboxMenuDecoration(
               borderRadius: BorderRadius.circular(5),
               boxShadow: [
@@ -366,6 +424,9 @@ class _ExampleState extends State<Example> {
             actionItem: ComboboxActionItem(
               title: "Create New",
               onPressed: () {},
+            ),
+            fieldDecoration: ComboboxFieldDecoration(
+              style: style,
             ),
           ),
         ),

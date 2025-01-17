@@ -12,7 +12,7 @@ class MenuStore<T> = _MenuStore<T> with _$MenuStore<T>;
 
 // The store-class
 abstract class _MenuStore<T> with Store {
-  final ComboboxFieldStore fieldStore;
+  final ComboboxFieldStore<T> fieldStore;
   ComboboxItemStringifier<T> itemStringifier;
   ComboboxItemChanged<T> onChanged;
   ComboboxMenuPosition menuPosition;
@@ -162,6 +162,11 @@ abstract class _MenuStore<T> with Store {
     if (_ignoreFilter == value) {
       _ignoreFilter = null;
       _lastFilter = value;
+      return;
+    }
+
+    if (fieldStore.item != null &&
+        itemStringifier(fieldStore.item as T) == value) {
       return;
     }
 
