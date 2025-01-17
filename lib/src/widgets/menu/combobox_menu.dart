@@ -170,17 +170,26 @@ class ComboboxMenu<T> extends StatelessWidget {
                                       height: store
                                           .menuStructure!.itemSizes[i].height,
                                       child: MouseRegion(
-                                        cursor: SystemMouseCursors.click,
-                                        onEnter: (event) {
-                                          print("Mouse enter $i");
-                                        },
+                                        cursor: store.menuStructure!.items[i]
+                                                .disabled
+                                            ? SystemMouseCursors.basic
+                                            : SystemMouseCursors.click,
                                         child: GestureDetector(
-                                          onTap: () {
-                                            store.selectItem(i);
-                                          },
+                                          onTap: store.menuStructure!.items[i]
+                                                  .disabled
+                                              ? null
+                                              : () {
+                                                  store.selectItem(i);
+                                                },
                                           behavior: HitTestBehavior.opaque,
-                                          child: itemBuilder(store
-                                              .menuStructure!.items[i].value),
+                                          child: Opacity(
+                                            opacity: store.menuStructure!
+                                                    .items[i].disabled
+                                                ? 0.3
+                                                : 1,
+                                            child: itemBuilder(store
+                                                .menuStructure!.items[i].value),
+                                          ),
                                         ),
                                       ),
                                     ),

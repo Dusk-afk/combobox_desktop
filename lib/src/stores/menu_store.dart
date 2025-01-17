@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:combobox_desktop/combobox_desktop.dart';
 import 'package:combobox_desktop/src/models/menu_structure.dart';
 import 'package:combobox_desktop/src/services/hook.dart';
@@ -93,29 +94,60 @@ abstract class _MenuStore<T> with Store {
   @observable
   int _focusedIndex = 0;
 
+  /// Returns the index of the focused item by adhering to constraints:
+  /// - The index should be within the bounds of the filtered items
+  /// - The index should not point to a disabled item
+  ///
+  /// If both conditions are not met, -1 is returned no matter action item is present or not
   @computed
   int get focusedIndex {
-    if (_focusedIndex >= filteredItems.length) {
-      return filteredItems.length - 1;
+    int index = math.max(
+      math.min(_focusedIndex, filteredItems.length - 1),
+      -1,
+    );
+    if (index < 0) {
+      return index;
     }
-    return _focusedIndex;
+
+    for (;
+        index < filteredItems.length && filteredItems[index].disabled;
+        index++) {}
+    if (index >= filteredItems.length) {
+      index--;
+    }
+    if (filteredItems[index].disabled) {
+      for (; index >= 0 && filteredItems[index].disabled; index--) {}
+    }
+    return index;
   }
 
+  /// Tries to focus to next enabled item
+  /// If not possible, then stays on the current item
   @action
   void focusNextItem() {
-    if (_focusedIndex < filteredItems.length - 1) {
-      _focusedIndex++;
+    int newIndex = math.min(focusedIndex + 1, filteredItems.length - 1);
+    for (;
+        newIndex < filteredItems.length && filteredItems[newIndex].disabled;
+        newIndex++) {}
+    if (newIndex < filteredItems.length) {
+      _focusedIndex = newIndex;
+      callOnStructureInputChange();
     }
-    callOnStructureInputChange();
   }
 
+  /// Tries to focus to previous enabled item
+  /// If not possible, then stays on the current item
   @action
   void focusPreviousItem() {
-    int min = actionItem == null ? 0 : -1;
-    if (_focusedIndex > min) {
-      _focusedIndex--;
+    int newIndex = math.max(
+      math.min(focusedIndex - 1, filteredItems.length - 1),
+      actionItem != null ? -1 : 0,
+    );
+    for (; newIndex >= 0 && filteredItems[newIndex].disabled; newIndex--) {}
+    if (newIndex >= 0 || actionItem != null) {
+      _focusedIndex = newIndex;
+      callOnStructureInputChange();
     }
-    callOnStructureInputChange();
   }
 
   @action
@@ -216,6 +248,9 @@ abstract class _MenuStore<T> with Store {
   @action
   void resetFilter() {
     filteredItems = items;
+    Future.microtask(() {
+      callOnStructureInputChange();
+    });
   }
 
   @observable
