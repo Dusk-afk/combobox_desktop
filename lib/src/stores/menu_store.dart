@@ -53,6 +53,10 @@ abstract class _MenuStore<T> with Store {
     if (menuStructure == null) {
       callOnStructureInputChange();
     }
+
+    if (fieldStore.item != null) {
+      _focusCurrentItem();
+    }
   }
 
   @action
@@ -148,6 +152,16 @@ abstract class _MenuStore<T> with Store {
       _focusedIndex = newIndex;
       callOnStructureInputChange();
     }
+  }
+
+  @action
+  void _focusCurrentItem() {
+    _focusedIndex =
+        filteredItems.indexWhere((item) => item.value == fieldStore.item);
+    if (_focusedIndex < 0 && actionItem == null) {
+      _focusedIndex = 0;
+    }
+    callOnStructureInputChange();
   }
 
   @action

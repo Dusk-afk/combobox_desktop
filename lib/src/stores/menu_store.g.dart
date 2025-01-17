@@ -191,6 +191,17 @@ mixin _$MenuStore<T> on _MenuStore<T>, Store {
   }
 
   @override
+  void _focusCurrentItem() {
+    final _$actionInfo = _$_MenuStoreActionController.startAction(
+        name: '_MenuStore._focusCurrentItem');
+    try {
+      return super._focusCurrentItem();
+    } finally {
+      _$_MenuStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void selectItem([int? index]) {
     final _$actionInfo =
         _$_MenuStoreActionController.startAction(name: '_MenuStore.selectItem');

@@ -395,7 +395,10 @@ class StructureListener<T> {
   }
 
   (bool, bool) _calculateItemsAboveAndBelow(
-      double listScrollOffset, Size listSize, Size totalSize) {
+    double listScrollOffset,
+    Size listSize,
+    Size totalSize,
+  ) {
     bool itemsAbove = listScrollOffset > 0;
     bool itemsBelow = listScrollOffset < (totalSize.height - listSize.height);
     return (itemsAbove, itemsBelow);

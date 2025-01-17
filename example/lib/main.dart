@@ -255,7 +255,7 @@ class _ExampleState extends State<Example> {
             items: items
                 .mapIndexed((i, e) => ComboboxItem(
                       value: e,
-                      disabled: i % 3 <= 1,
+                      // disabled: i % 3 <= 1,
                     ))
                 .toList(),
             value: value,
