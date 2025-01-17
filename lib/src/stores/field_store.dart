@@ -5,17 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 
 // Include generated file
-part 'combobox_field_store.g.dart';
+part 'field_store.g.dart';
 
 // This is the class used by rest of your codebase
-class ComboboxFieldStore<T> = _ComboboxFieldStore<T>
-    with _$ComboboxFieldStore<T>;
+class FieldStore<T> = _FieldStore<T> with _$FieldStore<T>;
 
 // The store-class
-abstract class _ComboboxFieldStore<T> with Store {
+abstract class _FieldStore<T> with Store {
   ComboboxItemStringifier<T> itemStringifier;
 
-  _ComboboxFieldStore(this.itemStringifier, this._disabled);
+  _FieldStore(this.itemStringifier, this._disabled);
 
   @observable
   late TextEditingController controller = TextEditingController()

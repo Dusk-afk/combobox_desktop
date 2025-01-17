@@ -1,5 +1,5 @@
 import 'package:combobox_desktop/combobox_desktop.dart';
-import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
+import 'package:combobox_desktop/src/stores/field_store.dart';
 import 'package:combobox_desktop/src/stores/menu_store.dart';
 import 'package:combobox_desktop/src/widgets/menu/combobox_menu.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 ///
 /// It then updates the [MenuStore] accordingly.
 class VisibilityListener<T> {
-  final ComboboxFieldStore fieldStore;
+  final FieldStore fieldStore;
   final MenuStore<T> menuStore;
   final BuildContext context;
   final ComboboxItemBuilder<T> itemBuilder;

@@ -1,5 +1,5 @@
 import 'package:combobox_desktop/combobox_desktop.dart';
-import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
+import 'package:combobox_desktop/src/stores/field_store.dart';
 import 'package:combobox_desktop/src/widgets/field_arrow_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -21,7 +21,7 @@ class ComboboxField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final store = context.read<ComboboxFieldStore>();
+    final store = context.read<FieldStore>();
     final duration = const Duration(milliseconds: 100);
     final effectiveDisabled = disabled || readOnly;
 

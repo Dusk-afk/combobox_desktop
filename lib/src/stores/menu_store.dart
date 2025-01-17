@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:combobox_desktop/combobox_desktop.dart';
 import 'package:combobox_desktop/src/models/menu_structure.dart';
 import 'package:combobox_desktop/src/services/hook.dart';
-import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
+import 'package:combobox_desktop/src/stores/field_store.dart';
 import 'package:mobx/mobx.dart';
 
 // Include generated file
@@ -13,7 +13,7 @@ class MenuStore<T> = _MenuStore<T> with _$MenuStore<T>;
 
 // The store-class
 abstract class _MenuStore<T> with Store {
-  final ComboboxFieldStore<T> fieldStore;
+  final FieldStore<T> fieldStore;
   ComboboxItemStringifier<T> itemStringifier;
   ComboboxItemChanged<T> onChanged;
   ComboboxMenuPosition menuPosition;

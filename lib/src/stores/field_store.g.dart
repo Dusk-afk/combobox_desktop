@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'combobox_field_store.dart';
+part of 'field_store.dart';
 
 // **************************************************************************
 // StoreGenerator
@@ -8,9 +8,9 @@ part of 'combobox_field_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$ComboboxFieldStore<T> on _ComboboxFieldStore<T>, Store {
+mixin _$FieldStore<T> on _FieldStore<T>, Store {
   late final _$controllerAtom =
-      Atom(name: '_ComboboxFieldStore.controller', context: context);
+      Atom(name: '_FieldStore.controller', context: context);
 
   @override
   TextEditingController get controller {
@@ -30,7 +30,7 @@ mixin _$ComboboxFieldStore<T> on _ComboboxFieldStore<T>, Store {
   }
 
   late final _$focusNodeAtom =
-      Atom(name: '_ComboboxFieldStore.focusNode', context: context);
+      Atom(name: '_FieldStore.focusNode', context: context);
 
   @override
   FocusNode get focusNode {
@@ -49,8 +49,7 @@ mixin _$ComboboxFieldStore<T> on _ComboboxFieldStore<T>, Store {
     });
   }
 
-  late final _$itemAtom =
-      Atom(name: '_ComboboxFieldStore.item', context: context);
+  late final _$itemAtom = Atom(name: '_FieldStore.item', context: context);
 
   @override
   T? get item {
@@ -66,7 +65,7 @@ mixin _$ComboboxFieldStore<T> on _ComboboxFieldStore<T>, Store {
   }
 
   late final _$errorTextAtom =
-      Atom(name: '_ComboboxFieldStore.errorText', context: context);
+      Atom(name: '_FieldStore.errorText', context: context);
 
   @override
   String? get errorText {
@@ -82,7 +81,7 @@ mixin _$ComboboxFieldStore<T> on _ComboboxFieldStore<T>, Store {
   }
 
   late final _$fieldKeyAtom =
-      Atom(name: '_ComboboxFieldStore.fieldKey', context: context);
+      Atom(name: '_FieldStore.fieldKey', context: context);
 
   @override
   GlobalKey<State<StatefulWidget>> get fieldKey {

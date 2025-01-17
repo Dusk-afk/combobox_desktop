@@ -1,7 +1,7 @@
 import 'package:combobox_desktop/combobox_desktop.dart';
 import 'package:combobox_desktop/src/listeners/structure_listener.dart';
 import 'package:combobox_desktop/src/listeners/visibility_listener.dart';
-import 'package:combobox_desktop/src/stores/combobox_field_store.dart';
+import 'package:combobox_desktop/src/stores/field_store.dart';
 import 'package:combobox_desktop/src/stores/menu_store.dart';
 import 'package:combobox_desktop/src/widgets/combobox_field.dart';
 import 'package:flutter/foundation.dart';
@@ -119,7 +119,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
         );
       };
 
-  late final fieldStore = ComboboxFieldStore(
+  late final fieldStore = FieldStore(
     _itemStringifier,
     widget.disabled,
   );
@@ -192,7 +192,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<ComboboxFieldStore>(
+        Provider<FieldStore>(
           create: (_) => fieldStore,
           dispose: (_, store) => store.dispose(),
         ),
