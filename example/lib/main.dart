@@ -100,7 +100,11 @@ class _ExampleState extends State<Example> {
     "Gray",
   ];
 
-  late List<List<String>> itemsList = [items1, items2, items3];
+  List<String> items4 = [
+    "Only Me",
+  ];
+
+  late List<List<String>> itemsList = [items1, items2, items3, items4];
   int _itemsIndex = 0;
   List<String> get items => itemsList[_itemsIndex];
   String? value;

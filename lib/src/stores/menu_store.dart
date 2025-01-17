@@ -33,6 +33,13 @@ abstract class _MenuStore<T> with Store {
     fieldStore.onArrowUp = focusPreviousItem;
     fieldStore.onEnter = selectItem;
     fieldStore.onTextChangeHook.add(filterItems);
+
+    // Automatic select on one item
+    if (items.length == 1 && fieldStore.item == null) {
+      Future.microtask(() {
+        selectItem(0);
+      });
+    }
   }
 
   @observable
@@ -41,6 +48,10 @@ abstract class _MenuStore<T> with Store {
   @action
   void openMenu() {
     isMenuOpen = true;
+
+    if (menuStructure == null) {
+      callOnStructureInputChange();
+    }
   }
 
   @action
@@ -69,6 +80,12 @@ abstract class _MenuStore<T> with Store {
         !items.any((item) => item.value == fieldStore.item)) {
       Future.microtask(() {
         onChanged.call(null);
+      });
+    }
+
+    if (items.length == 1 && fieldStore.item == null) {
+      Future.microtask(() {
+        selectItem(0);
       });
     }
   }
@@ -113,7 +130,9 @@ abstract class _MenuStore<T> with Store {
     final item = filteredItems[_focusedIndex];
     _ignoreFilter = itemStringifier(item.value);
     onChanged.call(item.value);
-    fieldStore.focusNode.nextFocus();
+    if (fieldStore.focusNode.hasFocus) {
+      fieldStore.focusNode.nextFocus();
+    }
   }
 
   @action
@@ -200,7 +219,7 @@ abstract class _MenuStore<T> with Store {
   }
 
   @observable
-  MenuStructure? menuStructure;
+  MenuStructure<T>? menuStructure;
 
   @observable
   ComboboxActionItem? actionItem;

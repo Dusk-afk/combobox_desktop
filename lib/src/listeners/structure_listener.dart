@@ -35,32 +35,32 @@ class StructureListener<T> {
 
     final (Offset? fieldPos, Size? fieldSize) = fieldStore.getPositionAndSize();
     if (fieldPos == null || fieldSize == null) return;
-    print("fieldPos: $fieldPos");
-    print("fieldSize: $fieldSize");
+    // print("fieldPos: $fieldPos");
+    // print("fieldSize: $fieldSize");
 
     Size screenSize = MediaQuery.of(context).size;
-    print("screenSize: $screenSize");
+    // print("screenSize: $screenSize");
 
     double width = _calculateWidth(screenSize, fieldPos, fieldSize, decoration);
-    print("width: $width");
+    // print("width: $width");
 
     Size actionSize = await _calculateActionItemSize(actionItem, width);
-    print("actionSize: $actionSize");
+    // print("actionSize: $actionSize");
 
     int focusedIndex = menuStore.focusedIndex;
-    print("focusedIndex: $focusedIndex");
+    // print("focusedIndex: $focusedIndex");
 
     List<Size> itemSizes = await _getItemSizes(items, width);
-    print("itemSizes: $itemSizes");
+    // print("itemSizes: $itemSizes");
     Size totalSize = _calculateTotalSize(itemSizes);
-    print("totalSize: $totalSize");
+    // print("totalSize: $totalSize");
     List<Size> cumulativeSizes = _calculateCumulativeSizes(itemSizes);
-    print("cumulativeSizes: $cumulativeSizes");
+    // print("cumulativeSizes: $cumulativeSizes");
     double? virtualCursorPos = _calculateVirtualCursorPos(
       itemSizes,
       focusedIndex,
     );
-    print("virtualCursorPos: $virtualCursorPos");
+    // print("virtualCursorPos: $virtualCursorPos");
 
     Offset framePos = _calculateFramePosition(
       fieldPos,
@@ -70,7 +70,7 @@ class StructureListener<T> {
       virtualCursorPos,
       gradientHeight,
     );
-    print("framePos: $framePos");
+    // print("framePos: $framePos");
     Size availableSize = Size(
       screenSize.width - framePos.dx,
       screenSize.height - framePos.dy,
@@ -87,12 +87,12 @@ class StructureListener<T> {
       gradientHeight,
       focusedIndex,
     );
-    print("frameSize: $frameSize");
+    // print("frameSize: $frameSize");
 
     Offset listPos = Offset(0, actionSize.height);
-    print("listPos: $listPos");
+    // print("listPos: $listPos");
     Size listSize = Size(frameSize.width, frameSize.height - actionSize.height);
-    print("listSize: $listSize");
+    // print("listSize: $listSize");
     double listScrollOffset = _calculateListScrollOffset(
       virtualCursorPos,
       listSize,
@@ -101,28 +101,28 @@ class StructureListener<T> {
       isScrollable,
       gradientHeight,
     );
-    print("listScrollOffset: $listScrollOffset");
+    // print("listScrollOffset: $listScrollOffset");
     // double cursorPos = virtualCursorPos - listScrollOffset;
     Offset cursorPos = _calculateCursorPos(
       virtualCursorPos,
       listScrollOffset,
       actionSize.height,
     );
-    print("cursorPos: $cursorPos");
+    // print("cursorPos: $cursorPos");
     Size cursorSize = _calculateCursorSize(
       actionSize,
       itemSizes,
       width,
       focusedIndex,
     );
-    print("cursorSize: $cursorSize");
+    // print("cursorSize: $cursorSize");
     (int start, int end) visibleItems = _calculateVisibleItems(
       itemSizes,
       cumulativeSizes,
       listScrollOffset,
       listSize,
     );
-    print("visibleItems: $visibleItems");
+    // print("visibleItems: $visibleItems");
 
     final (bool itemsAbove, bool itemsBelow) = _calculateItemsAboveAndBelow(
       listScrollOffset,

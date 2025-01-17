@@ -20,7 +20,7 @@ class SizeRetriever<T> {
 
   /// Returns the size of list of widgets.
   Future<List<Size>> getSizes(List<KeyedWidget<T>> widgets) async {
-    debugPrint("Getting sizes of ${widgets.length} widgets");
+    // debugPrint("Getting sizes of ${widgets.length} widgets");
     List<Size> sizes = List.filled(widgets.length, Size.zero);
     List<int> uncachedIndexes = [];
     List<Widget> uncachedWidgets = [];
@@ -37,12 +37,12 @@ class SizeRetriever<T> {
       }
     }
 
-    debugPrint("Uncached widgets: ${uncachedWidgets.length}");
+    // debugPrint("Uncached widgets: ${uncachedWidgets.length}");
 
     DateTime start = DateTime.now();
     List<Size> uncachedSizes = await _getSizesOfWidgets(uncachedWidgets);
-    debugPrint(
-        "Time taken: ${DateTime.now().difference(start).inMilliseconds}ms");
+    // debugPrint(
+    // "Time taken: ${DateTime.now().difference(start).inMilliseconds}ms");
 
     for (int i = 0; i < uncachedIndexes.length; i++) {
       final index = uncachedIndexes[i];

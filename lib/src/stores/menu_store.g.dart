@@ -88,13 +88,13 @@ mixin _$MenuStore<T> on _MenuStore<T>, Store {
       Atom(name: '_MenuStore.menuStructure', context: context);
 
   @override
-  MenuStructure<dynamic>? get menuStructure {
+  MenuStructure<T>? get menuStructure {
     _$menuStructureAtom.reportRead();
     return super.menuStructure;
   }
 
   @override
-  set menuStructure(MenuStructure<dynamic>? value) {
+  set menuStructure(MenuStructure<T>? value) {
     _$menuStructureAtom.reportWrite(value, super.menuStructure, () {
       super.menuStructure = value;
     });
