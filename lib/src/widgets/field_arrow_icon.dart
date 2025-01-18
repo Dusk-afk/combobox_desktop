@@ -44,7 +44,7 @@ class FieldArrowIcon extends StatelessWidget {
                 width: borderWidth,
               ),
             ),
-            padding: EdgeInsets.all(6),
+            padding: EdgeInsets.all(8),
             child: Center(
               child: FittedBox(
                 child: Transform.rotate(

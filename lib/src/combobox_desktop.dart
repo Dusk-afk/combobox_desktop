@@ -76,6 +76,12 @@ class ComboboxDesktop<T> extends StatefulWidget {
   /// In this state, the field is read-only and their is additional styling to show that the field is disabled.
   final bool disabled;
 
+  /// The delay to move the focus after selecting the item.
+  final Duration? nextFocusDelay;
+
+  /// If true, the first item will be automatically selected if there is only one item.
+  final bool autoSelect;
+
   const ComboboxDesktop({
     super.key,
     required this.items,
@@ -94,6 +100,8 @@ class ComboboxDesktop<T> extends StatefulWidget {
     this.itemsIndicatorBuilder,
     this.readOnly = false,
     this.disabled = false,
+    this.nextFocusDelay,
+    this.autoSelect = true,
   });
 
   @override
@@ -136,6 +144,8 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     widget.menuPosition,
     widget.actionItem,
     widget.menuDecoration,
+    widget.nextFocusDelay,
+    widget.autoSelect,
   );
   late final visibilityListener = VisibilityListener<T>(
     context,
@@ -147,6 +157,16 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     widget.itemsIndicatorBuilder,
     widget.disabled,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.value != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        fieldStore.setItem(widget.value);
+      });
+    }
+  }
 
   @override
   void didUpdateWidget(covariant ComboboxDesktop<T> oldWidget) {
@@ -194,6 +214,14 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
 
     if (oldWidget.focusNode != widget.focusNode) {
       // TODO: Handle this
+    }
+
+    if (oldWidget.nextFocusDelay != widget.nextFocusDelay) {
+      menuStore.nextFocusDelay = widget.nextFocusDelay;
+    }
+
+    if (oldWidget.autoSelect != widget.autoSelect) {
+      menuStore.autoSelect = widget.autoSelect;
     }
   }
 

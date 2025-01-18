@@ -45,8 +45,10 @@ class ComboboxMenu<T> extends StatelessWidget {
 
         return AnimatedPositioned(
           duration: duration,
-          left: store.menuStructure!.framePos.dx,
-          top: store.menuStructure!.framePos.dy,
+          left: store.menuStructure!.framePos.dx -
+              (store.decoration?.globalOffset.dx ?? 0),
+          top: store.menuStructure!.framePos.dy -
+              (store.decoration?.globalOffset.dy ?? 0),
           width: store.menuStructure!.frameSize.width,
           height: store.menuStructure!.frameSize.height,
           child: TextFieldTapRegion(
@@ -195,35 +197,35 @@ class ComboboxMenu<T> extends StatelessWidget {
                                     ),
                                   if (itemsIndicatorBuilder != null &&
                                       (store.menuStructure!.itemsAbove ||
-                                          store.menuStructure!.itemsBelow))
-                                    Positioned.fill(
-                                      child: IgnorePointer(
-                                        child: Column(
-                                          children: [
-                                            AnimatedOpacity(
-                                              duration: duration,
-                                              opacity: store
-                                                      .menuStructure!.itemsAbove
-                                                  ? 1
-                                                  : 0,
-                                              child: itemsIndicatorBuilder!(),
-                                            ),
-                                            Spacer(),
-                                            AnimatedOpacity(
-                                              duration: duration,
-                                              opacity: store
-                                                      .menuStructure!.itemsBelow
-                                                  ? 1
-                                                  : 0,
-                                              child: Transform.rotate(
-                                                angle: 3.14,
-                                                child: itemsIndicatorBuilder!(),
-                                              ),
-                                            ),
-                                          ],
+                                          store.menuStructure!.itemsBelow)) ...[
+                                    Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      right: 0,
+                                      child: AnimatedOpacity(
+                                        duration: duration,
+                                        opacity: store.menuStructure!.itemsAbove
+                                            ? 1
+                                            : 0,
+                                        child: itemsIndicatorBuilder!(),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      bottom: 0,
+                                      left: 0,
+                                      right: 0,
+                                      child: AnimatedOpacity(
+                                        duration: duration,
+                                        opacity: store.menuStructure!.itemsBelow
+                                            ? 1
+                                            : 0,
+                                        child: Transform.rotate(
+                                          angle: 3.14,
+                                          child: itemsIndicatorBuilder!(),
                                         ),
                                       ),
                                     ),
+                                  ],
                                 ],
                               ),
                             ),

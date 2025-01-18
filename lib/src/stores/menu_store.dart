@@ -26,6 +26,8 @@ abstract class _MenuStore<T> with Store {
     this.menuPosition,
     this.actionItem,
     this.decoration,
+    this.nextFocusDelay,
+    this.autoSelect,
   ) {
     filteredItems = items;
 
@@ -36,7 +38,10 @@ abstract class _MenuStore<T> with Store {
     fieldStore.onTextChangeHook.add(filterItems);
 
     // Automatic select on one item
-    if (items.length == 1 && fieldStore.item == null) {
+    if (autoSelect &&
+        items.length == 1 &&
+        fieldStore.item == null &&
+        !items[0].disabled) {
       Future.microtask(() {
         selectItem(0);
       });
@@ -65,6 +70,8 @@ abstract class _MenuStore<T> with Store {
     resetFilter();
   }
 
+  bool autoSelect;
+
   @observable
   List<ComboboxItem<T>> items;
 
@@ -88,7 +95,10 @@ abstract class _MenuStore<T> with Store {
       });
     }
 
-    if (items.length == 1 && fieldStore.item == null) {
+    if (autoSelect &&
+        items.length == 1 &&
+        fieldStore.item == null &&
+        !items[0].disabled) {
       Future.microtask(() {
         selectItem(0);
       });
@@ -177,7 +187,13 @@ abstract class _MenuStore<T> with Store {
     _ignoreFilter = itemStringifier(item.value);
     onChanged.call(item.value);
     if (fieldStore.focusNode.hasFocus) {
-      fieldStore.focusNode.nextFocus();
+      if (nextFocusDelay != null) {
+        Future.delayed(nextFocusDelay!, () {
+          fieldStore.focusNode.nextFocus();
+        });
+      } else {
+        fieldStore.focusNode.nextFocus();
+      }
     }
   }
 
@@ -241,8 +257,9 @@ abstract class _MenuStore<T> with Store {
     _lastFilter = value;
 
     filteredItems = items
-        .where((item) =>
-            item.value.toString().toLowerCase().contains(value.toLowerCase()))
+        .where((item) => itemStringifier(item.value)
+            .toLowerCase()
+            .contains(value.toLowerCase()))
         .toList();
 
     callOnStructureInputChange();
@@ -281,6 +298,8 @@ abstract class _MenuStore<T> with Store {
     this.decoration = decoration;
     callOnStructureInputChange();
   }
+
+  Duration? nextFocusDelay;
 
   void dispose() {
     // Unhook the keyboard events
