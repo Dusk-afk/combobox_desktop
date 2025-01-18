@@ -122,20 +122,23 @@ class __OverlayWidgetState extends State<_OverlayWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Theme(
-        data: Theme.of(widget.realContext),
-        child: Material(
-          color: Colors.transparent,
-          child: Center(
-            child: Stack(
-              children: [
-                for (int i = 0; i < widget.widgets.length; i++)
-                  Positioned(
-                    key: keys[i],
-                    child: widget.widgets[i],
-                  ),
-              ],
+    return Opacity(
+      opacity: 0.001,
+      child: IgnorePointer(
+        child: Theme(
+          data: Theme.of(widget.realContext),
+          child: Material(
+            color: Colors.transparent,
+            child: Center(
+              child: Stack(
+                children: [
+                  for (int i = 0; i < widget.widgets.length; i++)
+                    Positioned(
+                      key: keys[i],
+                      child: widget.widgets[i],
+                    ),
+                ],
+              ),
             ),
           ),
         ),
