@@ -14,11 +14,14 @@ class FieldStore<T> = _FieldStore<T> with _$FieldStore<T>;
 abstract class _FieldStore<T> with Store {
   ComboboxItemStringifier<T> itemStringifier;
 
-  _FieldStore(this.itemStringifier, this._disabled);
+  _FieldStore(this.itemStringifier, this._disabled, this._givenFocusNode);
 
   @observable
   late TextEditingController controller = TextEditingController()
     ..addListener(_onTextChangedListener);
+
+  final FocusNode? _givenFocusNode;
+  FocusOnKeyEventCallback? _oldFocusOnKeyEvent;
 
   @observable
   late FocusNode focusNode = _createFocusNode();
@@ -89,7 +92,11 @@ abstract class _FieldStore<T> with Store {
 
   /// Creates a new [FocusNode] with blacklisted keys.
   FocusNode _createFocusNode() {
-    return FocusNode(onKeyEvent: (node, event) {
+    FocusNode focusNode = _givenFocusNode ?? FocusNode();
+    _oldFocusOnKeyEvent = focusNode.onKeyEvent;
+
+    // A simple re-routing of the onKeyEvent to the blacklisted keys.
+    focusNode.onKeyEvent = (node, event) {
       if (_focusNodeBlacklistedKeys.containsKey(event.logicalKey)) {
         if (!_disabled && (event is KeyDownEvent || event is KeyRepeatEvent)) {
           _focusNodeBlacklistedKeys[event.logicalKey]?.call();
@@ -97,8 +104,14 @@ abstract class _FieldStore<T> with Store {
         return KeyEventResult.handled;
       }
 
+      if (_oldFocusOnKeyEvent != null) {
+        return _oldFocusOnKeyEvent!(node, event);
+      }
+
       return KeyEventResult.ignored;
-    });
+    };
+
+    return focusNode;
   }
 
   Hook<void Function(String)> onTextChangeHook = Hook<void Function(String)>();
@@ -143,6 +156,10 @@ abstract class _FieldStore<T> with Store {
 
   void dispose() {
     controller.dispose();
-    focusNode.dispose();
+    if (_givenFocusNode == null) {
+      focusNode.dispose();
+    } else {
+      _givenFocusNode!.onKeyEvent = _oldFocusOnKeyEvent;
+    }
   }
 }
