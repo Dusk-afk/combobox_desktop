@@ -160,6 +160,7 @@ class ComboboxField extends StatelessWidget {
                         : hasError
                             ? decoration.arrowFillErrorColor
                             : decoration.arrowFillColor,
+                    size: decoration.arrowSize,
                     borderWidth: decoration.borderWidth,
                     topRightRadius: decoration.borderRadius.topRight,
                     bottomRightRadius: decoration.borderRadius.bottomRight,

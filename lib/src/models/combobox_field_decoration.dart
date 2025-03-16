@@ -23,6 +23,7 @@ class ComboboxFieldDecoration {
   final Color arrowFillColor;
   final Color arrowFillErrorColor;
   final Color arrowFillDisabledColor;
+  final double? arrowSize;
 
   final Color selectionColor;
   final Color selectionUnfocusedColor;
@@ -57,6 +58,7 @@ class ComboboxFieldDecoration {
     this.arrowFillColor = const Color.fromARGB(255, 196, 229, 255),
     this.arrowFillErrorColor = const Color.fromARGB(255, 255, 200, 196),
     this.arrowFillDisabledColor = const Color.fromARGB(255, 240, 240, 240),
+    this.arrowSize,
     this.selectionColor = const Color.fromARGB(255, 161, 213, 255),
     this.selectionUnfocusedColor = Colors.transparent,
     this.errorTextColor = Colors.red,

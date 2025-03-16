@@ -6,6 +6,7 @@ class FieldArrowIcon extends StatelessWidget {
   final ComboboxMenuPosition menuPosition;
   final Color strokeColor;
   final Color fillColor;
+  final double? size;
   final double borderWidth;
   final Radius topRightRadius;
   final Radius bottomRightRadius;
@@ -17,6 +18,7 @@ class FieldArrowIcon extends StatelessWidget {
     required this.menuPosition,
     required this.strokeColor,
     required this.fillColor,
+    this.size,
     required this.borderWidth,
     required this.topRightRadius,
     required this.bottomRightRadius,
@@ -44,7 +46,6 @@ class FieldArrowIcon extends StatelessWidget {
                 width: borderWidth,
               ),
             ),
-            padding: EdgeInsets.all(8),
             child: Center(
               child: FittedBox(
                 child: Transform.rotate(
@@ -55,6 +56,7 @@ class FieldArrowIcon extends StatelessWidget {
                   child: Icon(
                     Icons.arrow_back_ios_new_rounded,
                     color: strokeColor,
+                    size: size ?? 16,
                   ),
                 ),
               ),
