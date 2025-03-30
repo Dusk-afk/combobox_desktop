@@ -3,6 +3,7 @@ import 'package:combobox_desktop/combobox_desktop.dart';
 import 'package:combobox_desktop/src/models/menu_structure.dart';
 import 'package:combobox_desktop/src/services/hook.dart';
 import 'package:combobox_desktop/src/stores/field_store.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
 // Include generated file
@@ -27,6 +28,7 @@ abstract class _MenuStore<T> with Store {
     this.actionItem,
     this.decoration,
     this.nextFocusDelay,
+    this.nextFocusNode,
     this.autoSelect,
   ) {
     filteredItems = items;
@@ -38,10 +40,7 @@ abstract class _MenuStore<T> with Store {
     fieldStore.onTextChangeHook.add(filterItems);
 
     // Automatic select on one item
-    if (autoSelect &&
-        items.length == 1 &&
-        fieldStore.item == null &&
-        !items[0].disabled) {
+    if (autoSelect && items.length == 1 && fieldStore.item == null && !items[0].disabled) {
       Future.microtask(() {
         selectItem(0);
       });
@@ -88,17 +87,13 @@ abstract class _MenuStore<T> with Store {
     });
 
     // If the current item is not in the new list, reset the item
-    if (fieldStore.item != null &&
-        !items.any((item) => item.value == fieldStore.item)) {
+    if (fieldStore.item != null && !items.any((item) => item.value == fieldStore.item)) {
       Future.microtask(() {
         onChanged.call(null);
       });
     }
 
-    if (autoSelect &&
-        items.length == 1 &&
-        fieldStore.item == null &&
-        !items[0].disabled) {
+    if (autoSelect && items.length == 1 && fieldStore.item == null && !items[0].disabled) {
       Future.microtask(() {
         selectItem(0);
       });
@@ -123,9 +118,7 @@ abstract class _MenuStore<T> with Store {
       return index;
     }
 
-    for (;
-        index < filteredItems.length && filteredItems[index].disabled;
-        index++) {}
+    for (; index < filteredItems.length && filteredItems[index].disabled; index++) {}
     if (index >= filteredItems.length) {
       index--;
     }
@@ -140,9 +133,7 @@ abstract class _MenuStore<T> with Store {
   @action
   void focusNextItem() {
     int newIndex = math.min(focusedIndex + 1, filteredItems.length - 1);
-    for (;
-        newIndex < filteredItems.length && filteredItems[newIndex].disabled;
-        newIndex++) {}
+    for (; newIndex < filteredItems.length && filteredItems[newIndex].disabled; newIndex++) {}
     if (newIndex < filteredItems.length) {
       _focusedIndex = newIndex;
       callOnStructureInputChange();
@@ -166,8 +157,7 @@ abstract class _MenuStore<T> with Store {
 
   @action
   void _focusCurrentItem() {
-    _focusedIndex =
-        filteredItems.indexWhere((item) => item.value == fieldStore.item);
+    _focusedIndex = filteredItems.indexWhere((item) => item.value == fieldStore.item);
     if (_focusedIndex < 0 && actionItem == null) {
       _focusedIndex = 0;
     }
@@ -187,12 +177,18 @@ abstract class _MenuStore<T> with Store {
     _ignoreFilter = itemStringifier(item.value);
     onChanged.call(item.value);
     if (fieldStore.focusNode.hasFocus) {
-      if (nextFocusDelay != null) {
-        Future.delayed(nextFocusDelay!, () {
+      void nextFocus() {
+        if (nextFocusNode != null) {
+          nextFocusNode!.requestFocus();
+        } else {
           fieldStore.focusNode.nextFocus();
-        });
+        }
+      }
+
+      if (nextFocusDelay != null) {
+        Future.delayed(nextFocusDelay!, nextFocus);
       } else {
-        fieldStore.focusNode.nextFocus();
+        nextFocus();
       }
     }
   }
@@ -246,8 +242,7 @@ abstract class _MenuStore<T> with Store {
       return;
     }
 
-    if (fieldStore.item != null &&
-        itemStringifier(fieldStore.item as T) == value) {
+    if (fieldStore.item != null && itemStringifier(fieldStore.item as T) == value) {
       return;
     }
 
@@ -256,11 +251,7 @@ abstract class _MenuStore<T> with Store {
     }
     _lastFilter = value;
 
-    filteredItems = items
-        .where((item) => itemStringifier(item.value)
-            .toLowerCase()
-            .contains(value.toLowerCase()))
-        .toList();
+    filteredItems = items.where((item) => itemStringifier(item.value).toLowerCase().contains(value.toLowerCase())).toList();
 
     callOnStructureInputChange();
 
@@ -300,6 +291,8 @@ abstract class _MenuStore<T> with Store {
   }
 
   Duration? nextFocusDelay;
+
+  FocusNode? nextFocusNode;
 
   void dispose() {
     // Unhook the keyboard events

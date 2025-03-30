@@ -79,6 +79,9 @@ class ComboboxDesktop<T> extends StatefulWidget {
   /// The delay to move the focus after selecting the item.
   final Duration? nextFocusDelay;
 
+  /// The focus node to move the focus to after selecting the item.
+  final FocusNode? nextFocusNode;
+
   /// If true, the first item will be automatically selected if there is only one item.
   final bool autoSelect;
 
@@ -101,6 +104,7 @@ class ComboboxDesktop<T> extends StatefulWidget {
     this.readOnly = false,
     this.disabled = false,
     this.nextFocusDelay,
+    this.nextFocusNode,
     this.autoSelect = true,
   });
 
@@ -109,8 +113,7 @@ class ComboboxDesktop<T> extends StatefulWidget {
 }
 
 class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
-  ComboboxItemStringifier<T> get _itemStringifier =>
-      widget.stringifier ?? (item) => item.toString();
+  ComboboxItemStringifier<T> get _itemStringifier => widget.stringifier ?? (item) => item.toString();
 
   ComboboxItemBuilder<T> get _itemBuilder =>
       widget.itemBuilder ??
@@ -145,6 +148,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     widget.actionItem,
     widget.menuDecoration,
     widget.nextFocusDelay,
+    widget.nextFocusNode,
     widget.autoSelect,
   );
   late final visibilityListener = VisibilityListener<T>(
@@ -206,8 +210,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
       menuStore.decoration = widget.menuDecoration;
     }
 
-    if (oldWidget.disabled != widget.disabled ||
-        oldWidget.readOnly != widget.readOnly) {
+    if (oldWidget.disabled != widget.disabled || oldWidget.readOnly != widget.readOnly) {
       fieldStore.disabled = widget.disabled || widget.readOnly;
       visibilityListener.disabled = widget.disabled || widget.readOnly;
     }
@@ -218,6 +221,10 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
 
     if (oldWidget.nextFocusDelay != widget.nextFocusDelay) {
       menuStore.nextFocusDelay = widget.nextFocusDelay;
+    }
+
+    if (oldWidget.nextFocusNode != widget.nextFocusNode) {
+      menuStore.nextFocusNode = widget.nextFocusNode;
     }
 
     if (oldWidget.autoSelect != widget.autoSelect) {
