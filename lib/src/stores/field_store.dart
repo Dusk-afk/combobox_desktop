@@ -14,11 +14,21 @@ class FieldStore<T> = _FieldStore<T> with _$FieldStore<T>;
 abstract class _FieldStore<T> with Store {
   ComboboxItemStringifier<T> itemStringifier;
 
-  _FieldStore(this.itemStringifier, this._disabled, this._givenFocusNode);
+  _FieldStore(this.itemStringifier, this._disabled, this._givenFocusNode, TextEditingController? controller) {
+    _shouldDisposeController = controller == null;
+    controller ??= TextEditingController();
+    controller.addListener(_onTextChangedListener);
+    // ignore: prefer_initializing_formals
+    this.controller = controller;
+  }
+
+  /// Used to tell if the controller needs to be disposed along with the store.
+  ///
+  /// If the controller is passed from outside, it should not be disposed.
+  bool _shouldDisposeController = true;
 
   @observable
-  late TextEditingController controller = TextEditingController()
-    ..addListener(_onTextChangedListener);
+  late TextEditingController controller;
 
   final FocusNode? _givenFocusNode;
   FocusOnKeyEventCallback? _oldFocusOnKeyEvent;
@@ -141,8 +151,7 @@ abstract class _FieldStore<T> with Store {
 
   /// Returns the position and size of the field.
   (Offset?, Size?) getPositionAndSize() {
-    final RenderBox? renderBox =
-        fieldKey.currentContext?.findRenderObject() as RenderBox?;
+    final RenderBox? renderBox = fieldKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) {
       return (null, null);
     }
@@ -155,7 +164,10 @@ abstract class _FieldStore<T> with Store {
   }
 
   void dispose() {
-    controller.dispose();
+    controller.removeListener(_onTextChangedListener);
+    if (_shouldDisposeController) {
+      controller.dispose();
+    }
     if (_givenFocusNode == null) {
       focusNode.dispose();
     } else {

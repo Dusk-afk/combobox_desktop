@@ -39,6 +39,12 @@ class ComboboxDesktop<T> extends StatefulWidget {
   /// If not empty, message will also be displayed.
   final String? errorText;
 
+  /// The controller for the field.
+  ///
+  /// WARNING: This must only be used for reading the value.
+  /// If used for writing, the state of the combobox will be inconsistent.
+  final TextEditingController? controller;
+
   /// The focus node for the field.
   final FocusNode? focusNode;
 
@@ -93,6 +99,7 @@ class ComboboxDesktop<T> extends StatefulWidget {
     this.stringifier,
     this.itemBuilder,
     this.errorText,
+    this.controller,
     this.focusNode,
     this.menuPosition = ComboboxMenuPosition.below,
     this.actionItem,
@@ -138,6 +145,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     _itemStringifier,
     widget.disabled,
     widget.focusNode,
+    widget.controller,
   );
   late final menuStore = MenuStore<T>(
     fieldStore,
@@ -213,6 +221,10 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     if (oldWidget.disabled != widget.disabled || oldWidget.readOnly != widget.readOnly) {
       fieldStore.disabled = widget.disabled || widget.readOnly;
       visibilityListener.disabled = widget.disabled || widget.readOnly;
+    }
+
+    if (oldWidget.controller != widget.controller) {
+      // TODO: Handle this
     }
 
     if (oldWidget.focusNode != widget.focusNode) {
