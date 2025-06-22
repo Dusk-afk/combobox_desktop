@@ -88,7 +88,8 @@ class ComboboxDesktop<T> extends StatefulWidget {
   /// The focus node to move the focus to after selecting the item.
   final FocusNode? nextFocusNode;
 
-  /// If true, the first item will be automatically selected if there is only one item.
+  /// If true, the first item will be automatically selected if there is only one item
+  /// and the text field is empty.
   final bool autoSelect;
 
   const ComboboxDesktop({
@@ -120,7 +121,8 @@ class ComboboxDesktop<T> extends StatefulWidget {
 }
 
 class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
-  ComboboxItemStringifier<T> get _itemStringifier => widget.stringifier ?? (item) => item.toString();
+  ComboboxItemStringifier<T> get _itemStringifier =>
+      widget.stringifier ?? (item) => item.toString();
 
   ComboboxItemBuilder<T> get _itemBuilder =>
       widget.itemBuilder ??

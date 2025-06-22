@@ -40,7 +40,11 @@ abstract class _MenuStore<T> with Store {
     fieldStore.onTextChangeHook.add(filterItems);
 
     // Automatic select on one item
-    if (autoSelect && items.length == 1 && fieldStore.item == null && !items[0].disabled) {
+    if (autoSelect &&
+        items.length == 1 &&
+        fieldStore.item == null &&
+        fieldStore.controller.text.trim().isEmpty &&
+        !items[0].disabled) {
       Future.microtask(() {
         selectItem(0);
       });
@@ -93,7 +97,11 @@ abstract class _MenuStore<T> with Store {
       });
     }
 
-    if (autoSelect && items.length == 1 && fieldStore.item == null && !items[0].disabled) {
+    if (autoSelect &&
+        items.length == 1 &&
+        fieldStore.item == null &&
+        fieldStore.controller.text.trim().isEmpty &&
+        !items[0].disabled) {
       Future.microtask(() {
         selectItem(0);
       });
@@ -133,7 +141,9 @@ abstract class _MenuStore<T> with Store {
   @action
   void focusNextItem() {
     int newIndex = math.min(focusedIndex + 1, filteredItems.length - 1);
-    for (; newIndex < filteredItems.length && filteredItems[newIndex].disabled; newIndex++) {}
+    for (;
+        newIndex < filteredItems.length && filteredItems[newIndex].disabled;
+        newIndex++) {}
     if (newIndex < filteredItems.length) {
       _focusedIndex = newIndex;
       callOnStructureInputChange();
@@ -251,7 +261,10 @@ abstract class _MenuStore<T> with Store {
     }
     _lastFilter = value;
 
-    filteredItems = items.where((item) => itemStringifier(item.value).toLowerCase().contains(value.toLowerCase())).toList();
+    filteredItems = items
+        .where((item) =>
+            itemStringifier(item.value).toLowerCase().contains(value.toLowerCase()))
+        .toList();
 
     callOnStructureInputChange();
 
