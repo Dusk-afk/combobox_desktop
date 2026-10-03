@@ -29,6 +29,15 @@ class ComboboxDesktop<T> extends StatefulWidget {
   /// This will also be used to display the item in the menu if [itemBuilder] is not provided.
   final ComboboxItemStringifier<T>? stringifier;
 
+  /// The item text the typed query is matched against, one entry per field the
+  /// item can be found by.
+  ///
+  /// Defaults to the single string [stringifier] produces, which is also what
+  /// the field shows. Supply this when an item should also be findable by text
+  /// the menu does not display — a ledger's alias, for instance. Each entry is
+  /// matched on its own, so a query never spans two of them.
+  final ComboboxItemSearchTerms<T>? searchTerms;
+
   /// Function to build the item in the menu.
   final ComboboxItemBuilder<T>? itemBuilder;
 
@@ -98,6 +107,7 @@ class ComboboxDesktop<T> extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.stringifier,
+    this.searchTerms,
     this.itemBuilder,
     this.errorText,
     this.controller,
@@ -123,6 +133,9 @@ class ComboboxDesktop<T> extends StatefulWidget {
 class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
   ComboboxItemStringifier<T> get _itemStringifier =>
       widget.stringifier ?? (item) => item.toString();
+
+  ComboboxItemSearchTerms<T> get _searchTerms =>
+      widget.searchTerms ?? (item) => [_itemStringifier(item)];
 
   ComboboxItemBuilder<T> get _itemBuilder =>
       widget.itemBuilder ??
@@ -153,6 +166,7 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     fieldStore,
     widget.items,
     _itemStringifier,
+    _searchTerms,
     widget.onChanged,
     widget.menuPosition,
     widget.actionItem,
@@ -205,6 +219,10 @@ class _ComboboxDesktopState<T> extends State<ComboboxDesktop<T>> {
     if (oldWidget.stringifier != widget.stringifier) {
       fieldStore.itemStringifier = _itemStringifier;
       menuStore.itemStringifier = _itemStringifier;
+    }
+
+    if (oldWidget.searchTerms != widget.searchTerms) {
+      menuStore.searchTerms = _searchTerms;
     }
 
     if (oldWidget.menuPosition != widget.menuPosition) {

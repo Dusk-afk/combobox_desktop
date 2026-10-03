@@ -16,6 +16,7 @@ class MenuStore<T> = _MenuStore<T> with _$MenuStore<T>;
 abstract class _MenuStore<T> with Store {
   final FieldStore<T> fieldStore;
   ComboboxItemStringifier<T> itemStringifier;
+  ComboboxItemSearchTerms<T> searchTerms;
   ComboboxItemChanged<T> onChanged;
   ComboboxMenuPosition menuPosition;
 
@@ -23,6 +24,7 @@ abstract class _MenuStore<T> with Store {
     this.fieldStore,
     this.items,
     this.itemStringifier,
+    this.searchTerms,
     this.onChanged,
     this.menuPosition,
     this.actionItem,
@@ -261,10 +263,7 @@ abstract class _MenuStore<T> with Store {
     }
     _lastFilter = value;
 
-    filteredItems = items
-        .where((item) =>
-            itemStringifier(item.value).toLowerCase().contains(value.toLowerCase()))
-        .toList();
+    filteredItems = items.where((item) => _matchesQuery(item.value, value)).toList();
 
     callOnStructureInputChange();
 
@@ -278,6 +277,11 @@ abstract class _MenuStore<T> with Store {
         onChanged.call(null);
       });
     }
+  }
+
+  bool _matchesQuery(T value, String query) {
+    final String needle = query.toLowerCase();
+    return searchTerms(value).any((term) => term.toLowerCase().contains(needle));
   }
 
   @action
